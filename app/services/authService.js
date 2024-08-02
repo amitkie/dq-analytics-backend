@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { users, payments, userActivities } = require('../models'); // Assuming your models are exported correctly
+const { users, payments, userActivities } = require('../models/index'); // Assuming your models are exported correctly
 
 
 async function registerUser(userData) {
@@ -41,7 +41,15 @@ await userActivities.create(userActivityData);
 
 async function authenticateUser(userData) {
   const { email, password } = userData;
-  const user = await users.findOne({ where: { email } });
+  console.log(userData, "dfudufgduhugidhgihdfidifidfidififii");
+
+  // try {
+    
+  // } catch (error) {
+    
+  // }
+  const user = await users.findOne({ where: { email:email } });
+  console.log(user,'khigiguuffy');
 
   if (!user) {
       return null; // User not found

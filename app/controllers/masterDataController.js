@@ -1,4 +1,4 @@
-const { getAllCategories, getAllBrands, getBrandsByCategoryId, getAllBenchmark, getAllPlatform, getAllMetrics,getAllFrequency, getAllSection, getPlatformsBySectionId, getMetricsByPlatformId } = require("../services/masterDataService");
+const { getAllCategories, getAllBrands, getAllBenchmark, getAllPlatform, getAllMetrics,getAllFrequency, getAllSection, getPlatformsBySectionId, getMetricsByPlatformId, getBrandsByCategoryIds, getMetricsByPlatformIds } = require("../services/masterDataService");
 const { ValidationError } = require("../handlers/errorHandler");
 const { createErrorResponse } = require("../utils/errorResponse");
 const { createSuccessResponse } = require("../utils/successResponse");
@@ -33,9 +33,9 @@ const getAllBrandsController = async(req,res) => {
 }
 
 const getBrandsByCategoryIdController = async(req,res) => {
-    const {category_id} = req.params;
+    const {category_ids} = req.body;
     try {        
-        const response = await getBrandsByCategoryId(category_id);
+        const response = await getBrandsByCategoryIds(category_ids);
         const successResponse = createSuccessResponse(200, 'Brands found successfully', response);
         return res.status(200).json(successResponse);
     } catch (error) {
@@ -120,9 +120,9 @@ const getAllMetricsController = async(req,res) => {
         }
 }
 const getMetricsByPlatformIdController = async(req,res) => {
-    const {platform_id} = req.params;
+    const {platform_ids} = req.body;
     try {        
-        const response = await getMetricsByPlatformId(platform_id);
+        const response = await getMetricsByPlatformIds(platform_ids);
         const successResponse = createSuccessResponse(200, 'Platforms found successfully', response);
         return res.status(200).json(successResponse);
     } catch (error) {

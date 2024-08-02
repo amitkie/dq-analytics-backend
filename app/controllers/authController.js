@@ -26,6 +26,7 @@ const loginUser = async (req,res) => {
         const successResponse = createSuccessResponse(200, "User logged in successfully", response);
         return res.status(200).json(successResponse);
     } catch (error) {
+      console.log(error,"xcbbudifheihfiheifhiehifheihfieh");
         if (error instanceof ValidationError) {
             const errorResponse = createErrorResponse(400, error.code, error.message);
             return res.status(400).json(errorResponse);

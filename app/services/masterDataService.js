@@ -31,17 +31,40 @@ const getAllBrands = async () => {
   }
 };
 
-const getBrandsByCategoryId = async (categoryId) => {
+// const getBrandsByCategoryId = async (categoryId) => {
+//   try {
+//     const brandsData = await brands.findAll({where: {category_id: categoryId}});
+//     if(!brandsData){
+//       throw new ValidationError("BRANDS_NOT_FOUND", "Data not found.");
+//     }
+//     return brandsData;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+const { Op } = require('sequelize');
+
+const getBrandsByCategoryIds = async (categoryIds) => {
   try {
-    const brandsData = await brands.findAll({where: {category_id: categoryId}});
-    if(!brandsData){
+    const brandsData = await brands.findAll({
+      where: {
+        category_id: {
+          [Op.in]: categoryIds
+        }
+      }
+    });
+
+    if (!brandsData || brandsData.length === 0) {
       throw new ValidationError("BRANDS_NOT_FOUND", "Data not found.");
     }
+
     return brandsData;
   } catch (error) {
     throw error;
   }
 }
+
 
 const getPlatformsBySectionId = async (sectionId) => {
   try {
@@ -100,17 +123,37 @@ const getAllMetrics = async () => {
   }
 };
 
-const getMetricsByPlatformId = async (platformId) => {
+// const getMetricsByPlatformIds = async (platformIds) => {
+//   try {
+//     const metricsData = await metrics.findAll({where: {platform_id: platformId}});
+//     if(!metricsData){
+//       throw new ValidationError("PLATFORM_NOT_FOUND", "Data not found.");
+//     }
+//     return metricsData;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+const getMetricsByPlatformIds = async (platformIds) => {
   try {
-    const metricsData = await metrics.findAll({where: {platform_id: platformId}});
-    if(!metricsData){
+    const metricsData = await metrics.findAll({
+      where: {
+        platform_id: {
+          [Op.in]: platformIds
+        }
+      }
+    });
+
+    if (!metricsData.length) {
       throw new ValidationError("PLATFORM_NOT_FOUND", "Data not found.");
     }
+    
     return metricsData;
   } catch (error) {
     throw error;
   }
-}
+};
+
 const getAllFrequency = async () => {
   try {
     const frequencyData = await frequencies.findAll();
@@ -126,12 +169,12 @@ const getAllFrequency = async () => {
 module.exports = {
   getAllCategories,
   getAllBrands,
-  getBrandsByCategoryId,
+  getBrandsByCategoryIds,
   getAllSection,
   getPlatformsBySectionId,
   getAllPlatform,
   getAllBenchmark,
   getAllMetrics,
-  getMetricsByPlatformId,
+  getMetricsByPlatformIds,
   getAllFrequency,
 };
