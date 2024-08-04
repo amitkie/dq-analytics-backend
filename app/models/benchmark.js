@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Benchmark = sequelize.define("benchmark", {
+  const Benchmark = sequelize.define("benchmarks", {
     title: {
       type: Sequelize.STRING
     },

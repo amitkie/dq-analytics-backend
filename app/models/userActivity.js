@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const UserActivity = sequelize.define("userActivity", {
+    const UserActivity = sequelize.define("userActivities", {
       tab_page_speed: {
         type: Sequelize.INTEGER
       },

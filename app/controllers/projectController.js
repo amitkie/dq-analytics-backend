@@ -24,6 +24,27 @@ const createProject = async (req, res) => {
     }
 };
 
+const getProjectByIdController = async (req, res) => {
+    try {
+      const { project_id } = req.query;
+  
+      if (!project_id) {
+        return res.status(400).json({ message: 'project_id query parameter is required' });
+      }
+  
+      const project = await projectService.getProjectById(project_id);
+  
+      return res.status(200).json({ project });
+    } catch (error) {
+      if (error.message === 'Project not found') {
+        return res.status(404).json({ message: error.message });
+      }
+  
+      console.error('Error fetching project:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+  };
+  
 
 
-module.exports = {createProject };
+module.exports = {createProject, getProjectByIdController };

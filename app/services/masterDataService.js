@@ -1,7 +1,7 @@
 
 
 const {categories, brands, platform, benchmarks, metrics, frequencies, sections} = require('../models/index')
-
+const { Op } = require('sequelize'); 
 const { ValidationError } = require("../handlers/errorHandler");
 
 const getAllCategories = async () => {
@@ -43,7 +43,6 @@ const getAllBrands = async () => {
 //   }
 // }
 
-const { Op } = require('sequelize');
 
 const getBrandsByCategoryIds = async (categoryIds) => {
   try {
@@ -134,9 +133,14 @@ const getAllMetrics = async () => {
 //     throw error;
 //   }
 // }
-const getMetricsByPlatformIds = async (platformIds) => {
+
+const findSectionsByPlatformIds = async (platformIds) => {
+  console.log('Platform IDs:', platformIds);
+  
   try {
-    const metricsData = await metrics.findAll({
+    console.log('Querying sections...');
+    
+    const sectionsData = await sections.findAll({
       where: {
         platform_id: {
           [Op.in]: platformIds
@@ -144,15 +148,45 @@ const getMetricsByPlatformIds = async (platformIds) => {
       }
     });
 
-    if (!metricsData.length) {
-      throw new ValidationError("PLATFORM_NOT_FOUND", "Data not found.");
+    console.log('Sections Data:', sectionsData);
+
+    if (sectionsData.length === 0) {
+      throw new ValidationError("SECTIONS_NOT_FOUND", "No sections found for the provided platform IDs.");
     }
-    
+
+    return sectionsData;
+  } catch (error) {
+    console.error('Error fetching sections:', error);
+    throw error;
+  }
+};
+
+
+const getMetricsBySectionsAndPlatformIds = async (sections, platformIds) => {
+  try {
+    const sectionIds = sections.map(section => section.id);
+
+    const metricsData = await metrics.findAll({
+      where: {
+        platform_id: {
+          [Op.in]: platformIds
+        },
+        section_id: {
+          [Op.in]: sectionIds
+        }
+      }
+    });
+
+    if (!metricsData.length) {
+      throw new ValidationError("METRICS_NOT_FOUND", "No metrics found for the provided sections and platform IDs.");
+    }
+
     return metricsData;
   } catch (error) {
     throw error;
   }
 };
+
 
 const getAllFrequency = async () => {
   try {
@@ -175,6 +209,7 @@ module.exports = {
   getAllPlatform,
   getAllBenchmark,
   getAllMetrics,
-  getMetricsByPlatformIds,
-  getAllFrequency,
+  findSectionsByPlatformIds,
+  getMetricsBySectionsAndPlatformIds,
+    getAllFrequency,
 };

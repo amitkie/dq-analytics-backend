@@ -27,14 +27,12 @@ db.brands = require("./brand.js")(sequelize, Sequelize);
 db.categories = require("./category.js")(sequelize, Sequelize);
 db.metrics = require("./metrics.js")(sequelize, Sequelize);
 db.platform = require("./platform.js")(sequelize, Sequelize);
-db.brands = require("./brand.js")(sequelize, Sequelize);
 db.sections = require("./section.js")(sequelize, Sequelize);
 db.users = require("./user.js")(sequelize, Sequelize);
 db.userActivities = require("./userActivity.js")(sequelize, Sequelize);
 db.userDetails = require("./userDetails.js")(sequelize, Sequelize);
 db.userProjects = require("./userProjects.js")(sequelize, Sequelize);
 db.payments = require("./payment.js")(sequelize, Sequelize);
-db.userProjects = require("./userProjects.js")(sequelize, Sequelize);
 
 
 module.exports = db;
