@@ -6,6 +6,7 @@ const authRoutes = require('./app/routes/authRoutes');
 const userRoutes = require('./app/routes/userRoutes'); 
 const paymentRoutes = require('./app/routes/paymentRoutes'); 
 const masterRoutes = require('./app/routes/masterDataRoutes'); 
+const projectRoutes = require('./app/routes/projectRoutes'); 
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/v1', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/master', masterRoutes);
+app.use('/api/v1/project', projectRoutes);
 
 // Sync database
 db.sequelize.sync()

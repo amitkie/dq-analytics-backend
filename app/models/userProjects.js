@@ -6,6 +6,26 @@ module.exports = (sequelize, Sequelize) => {
       file_url:{
         type: Sequelize.STRING
       },
+      metric_id: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        allowNull: true
+      },
+      brand_id: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        allowNull: true
+      },
+      platform_id: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        allowNull: true
+      },
+      category_id: {
+      type: Sequelize.ARRAY(Sequelize.INTEGER),
+      allowNull: true
+      },
+      frequency_id: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        allowNull: true
+        },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -15,6 +35,40 @@ module.exports = (sequelize, Sequelize) => {
         }
       },
     });
+
+    // UserProjects.associate = function(models) {
+    //   UserProjects.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+  
+    //   UserProjects.belongsToMany(models.Metric, {
+    //     through: 'UserProjectMetrics',
+    //     foreignKey: 'metric_id',
+    //     otherKey: 'id'
+    //   });
+  
+    //   UserProjects.belongsToMany(models.Brand, {
+    //     through: 'UserProjectBrands',
+    //     foreignKey: 'brand_id',
+    //     otherKey: 'id'
+    //   });
+  
+    //   UserProjects.belongsToMany(models.Platform, {
+    //     through: 'UserProjectPlatforms',
+    //     foreignKey: 'platform_id',
+    //     otherKey: 'id'
+    //   });
+  
+    //   UserProjects.belongsToMany(models.Category, {
+    //     through: 'UserProjectCategories',
+    //     foreignKey: 'category_id',
+    //     otherKey: 'id'
+    //   });
+  
+    //   UserProjects.belongsToMany(models.Frequency, {
+    //     through: 'UserProjectFrequencies',
+    //     foreignKey: 'frequency_id',
+    //     otherKey: 'id'
+    //   });
+    // };
   
     return UserProjects;
   };
