@@ -5,7 +5,6 @@ const { Op } = require('sequelize');
 async function createProject(userData) {
     const { project_name, user_id, metric_id, brand_id, category_id, frequency_id, platform_id } = userData;
     try {
-        console.log(user_id, "-----------------------------")
         const user = await users.findOne({ where: { id:user_id } });
         if (!user) {
             throw new Error('User not found');
