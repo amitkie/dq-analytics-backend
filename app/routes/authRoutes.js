@@ -11,5 +11,7 @@ router.post('/login', authController.loginUser);
 
 router.post('/get-user-info', authController.getUserAndPaymentInfo);
 
+router.post('/get-user-data', authController.getUserInfo);
+
 
 module.exports = router;

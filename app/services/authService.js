@@ -81,9 +81,22 @@ async function getUserAndPaymentInfo(body) {
     paymentInfo,
   };
 }
+async function getUserInfo(body) {
+  const {userId} = body;
+  const user = await users.findOne({ where: { id: userId } });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return {
+    user
+  };
+}
 
 module.exports = {
   registerUser,
   authenticateUser,
-  getUserAndPaymentInfo
+  getUserAndPaymentInfo,
+  getUserInfo
 };

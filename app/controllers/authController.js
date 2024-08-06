@@ -51,4 +51,19 @@ const getUserAndPaymentInfo = async (req,res) => {
         }
 }
 
-module.exports = {createUser, loginUser, getUserAndPaymentInfo};
+const getUserInfo = async (req,res) => {
+    try {
+        const response = await authService.getUserInfo(req.body);
+        const successResponse = createSuccessResponse(200, "User data found successfully", response);
+        return res.status(200).json(successResponse);
+    } catch (error) {
+        if (error instanceof ValidationError) {
+            const errorResponse = createErrorResponse(400, error.code, error.message);
+            return res.status(400).json(errorResponse);
+          }
+          const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error');
+          return res.status(500).json(errorResponse);
+        }
+}
+
+module.exports = {createUser, loginUser, getUserAndPaymentInfo, getUserInfo};
