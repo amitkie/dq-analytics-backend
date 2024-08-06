@@ -121,10 +121,26 @@ const getProjectById = async (projectId) => {
       throw error;
     }
   };
+
+const getProjectByUserId = async (user_id) => {
+  try {
+    const user = await users.findOne({ where: { id:user_id } });
+    if(!user){
+      throw new Error('User not Found');
+    }
+    const projectData = await userProjects.findAll({ where: {id: user_id}})
+      return projectData;
+    
+  } catch (error) {
+    throw new Error(error.message);
+    
+  }
+}
   
 
 
 module.exports = {
     createProject,
-    getProjectById
+    getProjectById,
+    getProjectByUserId
 };
