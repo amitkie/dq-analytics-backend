@@ -102,7 +102,7 @@ const getProjectById = async (projectId) => {
         return {
           ...metric.toJSON(),
           platform: platform ? platform.toJSON() : null,
-          section: section ? section.toJSON() : null
+          section: section ? section.toJSON() : null,
         };
       });
   
@@ -122,20 +122,68 @@ const getProjectById = async (projectId) => {
     }
   };
 
-const getProjectByUserId = async (user_id) => {
-  try {
-    const user = await users.findOne({ where: { id:user_id } });
-    if(!user){
-      throw new Error('User not Found');
-    }
-    const projectData = await userProjects.findAll({ where: {id: user_id}})
+
+  const getProjectByUserId = async (user_id) => {
+    try {
+      const user = await users.findOne({ where: { id: user_id } });
+  
+      if (!user) {
+        throw new Error('User not Found');
+      }
+  
+      let projectData = await userProjects.findAll({
+        where: { user_id: user_id }
+      });
+  
+      // Retrieve names for frequency, category, metric, and brand
+      for (let project of projectData) {
+        if (project.frequency_id) {
+          const frequenciesData = await frequencies.findAll({ 
+            where: { id: project.frequency_id },
+            attributes: ['name']
+          });
+          project.dataValues.frequencyNames = frequenciesData.map(frequency => frequency.name);
+        }
+  
+        if (project.category_id) {
+          const categoriesData = await categories.findAll({
+            where: { id: project.category_id },
+            attributes: ['name']
+          });
+          project.dataValues.categoryNames = categoriesData.map(category => category.name);
+        }
+  
+        if (project.metric_id) {
+          const metricsData = await metrics.findAll({
+            where: { id: project.metric_id },
+            attributes: ['name']
+          });
+          project.dataValues.metricNames = metricsData.map(metric => metric.name);
+        }
+  
+        if (project.brand_id) {
+          const brandsData = await brands.findAll({
+            where: { id: project.brand_id },
+            attributes: ['name']
+          });
+          project.dataValues.brandNames = brandsData.map(brand => brand.name);
+        }
+  
+        // Remove the original ID arrays
+        delete project.dataValues.metric_id;
+        delete project.dataValues.brand_id;
+        delete project.dataValues.category_id;
+        delete project.dataValues.frequency_id;
+      }
+  
       return projectData;
-    
-  } catch (error) {
-    throw new Error(error.message);
-    
+  
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
-}
+  
+
   
 
 
