@@ -126,8 +126,8 @@ const getDBAndSchemaTableCreationStatusService = async (user_id) => {
     }
 
     return {
-        is_db_created: userActivity.is_db_created,
-        is_schema_table_created: userActivity.is_schema_table_created,
+        is_db_created: userActivity?.is_db_created,
+        is_schema_table_created: userActivity?.is_schema_table_created,
     };
 };
 

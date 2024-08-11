@@ -21,6 +21,7 @@ module.exports = (sequelize, Sequelize) => {
       is_schema_table_created:{
         type:Sequelize.BOOLEAN,
       },
+  
 
 
       user_id: {

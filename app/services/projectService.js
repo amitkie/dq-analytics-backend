@@ -1,4 +1,4 @@
-const { users, userProjects, metrics, platform, sections, frequencies, categories, brands } = require('../models');
+const { users, userProjects, metrics, platform, sections, frequencies, categories, brands , userUrls} = require('../models');
 const { Op } = require('sequelize');
  // Assuming your models are exported correctly
 
@@ -182,6 +182,48 @@ const getProjectById = async (projectId) => {
       throw new Error(error.message);
     }
   }
+
+  const createOrUpdateUrls = async (userId, tabName, urls) => {
+    try {
+      const [userUrl] = await userUrls.findOrCreate({
+        where: { user_id: userId },
+        defaults: { tab_name: tabName, urls: [] },
+      });
+  
+      // Update the URLs
+      userUrl.tab_name = tabName;
+      userUrl.urls = [...new Set([...userUrl.urls, ...urls])]; // Prevent duplicate URLs
+      await userUrl.save();
+  
+      return {
+        message:  'URLs created successfully' ,
+        urls: userUrl.urls,
+      };
+    } catch (error) {
+      console.error('Error in createOrUpdateUrls service:', error);
+      throw new Error('Error creating or updating URLs');
+    }
+  };
+
+  const getUrlsByUserId = async (userId) => {
+    try {
+      const userUrl = await userUrls.findOne({
+        where: { user_id: userId }
+      });
+  
+      if (!userUrl) {
+        throw new Error('User URL entry not found');
+      }
+  
+      return {
+        tabName: userUrl.tab_name,
+        urls: userUrl.urls,
+      };
+    } catch (error) {
+      console.error('Error in getUrlsByUserId service:', error);
+      throw new Error('Error fetching URLs');
+    }
+  };
   
 
   
@@ -190,5 +232,7 @@ const getProjectById = async (projectId) => {
 module.exports = {
     createProject,
     getProjectById,
-    getProjectByUserId
+    getProjectByUserId,
+    createOrUpdateUrls,
+    getUrlsByUserId
 };

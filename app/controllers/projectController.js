@@ -65,7 +65,42 @@ const getProjectByIdController = async (req, res) => {
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   };
+
+  const createUrl = async (req, res) => {
+    const { userId, tabName, urls } = req.body;
   
+    try {
+      // Find or create the user URL entry
+     
+  const userUrl = await projectService.createOrUpdateUrls(userId, tabName, urls)
+      res.status(200).json({
+        message:  'URLs created successfully' ,
+        urls: userUrl.urls,
+      });
+    } catch (error) {
+      console.error('Error creating or updating URLs:', error);
+      res.status(500).json({ message: 'Error creating or updating URLs', error });
+    }
+  };
+
+  const getUrl = async (req, res) => {
+    const { userId } = req.query;
+  
+    try {
+      const data = await projectService.getUrlsByUserId(userId);
+  
+      res.status(200).json({
+        message: 'URLs fetched successfully',
+        data
+      });
+    } catch (error) {
+      console.error('Error fetching URLs:', error);
+      res.status(500).json({
+        message: 'Error fetching URLs',
+        error: error.message
+      });
+    }
+  };
 
 
-module.exports = {createProject, getProjectByIdController ,getProjectByUserIdController};
+module.exports = {createProject, getProjectByIdController ,getProjectByUserIdController, createUrl, getUrl};
