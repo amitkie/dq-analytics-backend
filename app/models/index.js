@@ -1,17 +1,22 @@
 const dbConfig = require("../../config/db.js");
 
 const Sequelize = require("sequelize");
-const userProjects = require("./userProjects.js");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   operatorsAliases: false,
-
+  port: dbConfig.PORT,
   pool: {
     max: dbConfig.pool.max,
     min: dbConfig.pool.min,
     acquire: dbConfig.pool.acquire,
     idle: dbConfig.pool.idle
+  },
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // Set to true for production
+    }
   }
 });
 
@@ -21,6 +26,7 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 
+console.log(db.sequelize);
 db.benchmarks = require("./benchmark.js")(sequelize, Sequelize);
 db.frequencies = require("./frequency.js")(sequelize, Sequelize);
 db.brands = require("./brand.js")(sequelize, Sequelize);
