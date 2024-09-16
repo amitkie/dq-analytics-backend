@@ -20,21 +20,36 @@ const createUser = async (req, res) => {
     }
   };
 
-const loginUser = async (req,res) => {
+  const loginUser = async (req, res) => {
     try {
-        const response = await authService.authenticateUser(req.body);
-        const successResponse = createSuccessResponse(200, "User logged in successfully", response);
-        return res.status(200).json(successResponse);
-    } catch (error) {
-      console.log(error,"xcbbudifheihfiheifhiehifheihfieh");
-        if (error instanceof ValidationError) {
-            const errorResponse = createErrorResponse(400, error.code, error.message);
-            return res.status(400).json(errorResponse);
-          }
-          const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error');
-          return res.status(500).json(errorResponse);
+      const response = await authService.authenticateUser(req.body);
+  
+      if (response.error) {
+        if (response.error === 'User not found') {
+          const errorResponse = createErrorResponse(404, 'USER_NOT_FOUND', response.error);
+          return res.status(404).json(errorResponse);
+        } else if (response.error === 'Credentials are incorrect') {
+          const errorResponse = createErrorResponse(401, 'INVALID_CREDENTIALS', response.error);
+          return res.status(401).json(errorResponse);
         }
-}
+      }
+  
+      const successResponse = createSuccessResponse(200, "User logged in successfully", response);
+      return res.status(200).json(successResponse);
+  
+    } catch (error) {
+      console.error('Error during login:', error);
+  
+      if (error instanceof ValidationError) {
+        const errorResponse = createErrorResponse(400, error.code, error.message);
+        return res.status(400).json(errorResponse);
+      }
+  
+      const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error');
+      return res.status(500).json(errorResponse);
+    }
+  };
+  
 
 const getUserAndPaymentInfo = async (req,res) => {
     try {

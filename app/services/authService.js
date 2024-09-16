@@ -39,32 +39,61 @@ await userActivities.create(userActivityData);
   return newUser;
 }
 
+// async function authenticateUser(userData) {
+//   const { email, password } = userData;
+//   console.log(userData, "dfudufgduhugidhgihdfidifidfidififii");
+
+//   // try {
+    
+//   // } catch (error) {
+    
+//   // }
+//   const user = await users.findOne({ where: { email:email } });
+//   console.log(user,'khigiguuffy');
+
+//   if (!user) {
+//       return null; // User not found
+//   }
+
+//   const isPasswordValid = await bcrypt.compare(password, user.password);
+//   if (!isPasswordValid) {
+//       return null; // Invalid password
+//   }
+//   const userId = user.id;
+
+//   return {
+//     userId
+//   };
+// }
+
 async function authenticateUser(userData) {
   const { email, password } = userData;
-  console.log(userData, "dfudufgduhugidhgihdfidifidfidififii");
+  console.log(userData, "Debugging user data");
 
-  // try {
-    
-  // } catch (error) {
-    
-  // }
-  const user = await users.findOne({ where: { email:email } });
-  console.log(user,'khigiguuffy');
+  try {
+    const user = await users.findOne({ where: { email: email } });
+    console.log(user, 'Debugging user query result');
 
-  if (!user) {
-      return null; // User not found
+    if (!user) {
+      return { error: 'User not found' }; // User not found
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return { error: 'Incorrect Credentials' }; // Invalid password
+    }
+
+    const userId = user.id;
+    return {
+      userId
+    };
+
+  } catch (error) {
+    console.error('Error during authentication:', error);
+    throw error; // Re-throw the error or handle it appropriately
   }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-      return null; // Invalid password
-  }
-  const userId = user.id;
-
-  return {
-    userId
-  };
 }
+
 
 async function getUserAndPaymentInfo(body) {
   const {userId} = body;

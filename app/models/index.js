@@ -41,6 +41,12 @@ db.userProjects = require("./userProjects.js")(sequelize, Sequelize);
 db.payments = require("./payment.js")(sequelize, Sequelize);
 db.userUrls = require("./userUrl.js")(sequelize, Sequelize);
 db.userAnalytic = require("./userAnalytics.js")(sequelize, Sequelize);
+db.projectBenchmark = require("./projectBenchmarks.js")(sequelize, Sequelize);
+db.projectBenchmarkSection = require("./projectBenchmarkSection.js")(sequelize, Sequelize);
+db.projectBenchmarkPlatform = require("./projectBenchmarkPlatform.js")(sequelize, Sequelize);
+
+
+
 
 
 

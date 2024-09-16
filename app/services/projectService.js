@@ -1,10 +1,10 @@
-const { users, userProjects, metrics, platform, sections, frequencies, categories, brands , userUrls, userAnalytic} = require('../models');
+const { users, userProjects, metrics, platform, sections, frequencies, categories, brands , userUrls, userAnalytic, projectBenchmark} = require('../models');
 const { Op } = require('sequelize');
  // Assuming your models are exported correctly
 
 
  async function createProject(userData) {
-  const { project_name, user_id, metric_id, brand_id, category_id, frequency_id } = userData;
+  const { project_name, user_id, metric_id, brand_id, category_id, frequency_id,start_date, end_date } = userData;
 
   try {
     // Find the user
@@ -20,7 +20,9 @@ const { Op } = require('sequelize');
       metric_id,
       brand_id,
       category_id,
-      frequency_id
+      frequency_id,
+      start_date,
+      end_date
     });
     if (!project) {
       throw new Error('Project not created');
@@ -84,6 +86,129 @@ const { Op } = require('sequelize');
   }
 }
 
+// const getProjectById = async (projectId) => {
+//   try {
+//     // Fetch the project by ID
+//     const project = await userProjects.findOne({
+//       where: { id: projectId }
+//     });
+
+//     if (!project) {
+//       throw new Error('Project not found');
+//     }
+
+//     // Fetch metric combinations from UserAnalytics
+//     const userAnalyticsData = await userAnalytic.findAll({
+//       where: {
+//         project_id: projectId
+//       }
+//     });
+
+//     // Extract metric_ids, platform_ids, and section_ids
+//     const metricIds = [...new Set(userAnalyticsData.map(ua => ua.metric_id).filter(id => id != null))];
+//     const platformIds = [...new Set(userAnalyticsData.map(ua => ua.platform_id).filter(id => id != null))];
+//     const sectionIds = [...new Set(userAnalyticsData.map(ua => ua.section_id).filter(id => id != null))];
+
+//     // Fetch metrics
+//     const metricsData = await metrics.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: metricIds
+//         }
+//       }
+//     });
+
+//     // Fetch platforms
+//     const platforms = await platform.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: platformIds
+//         }
+//       }
+//     });
+
+//     // Fetch sections
+//     const sectionData = await sections.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: sectionIds
+//         }
+//       }
+//     });
+
+//     // Fetch frequency, category, and brand names based on IDs
+//     const frequencyData = await frequencies.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: project.frequency_id
+//         }
+//       }
+//     });
+
+//     const categoryData = await categories.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: project.category_id
+//         }
+//       }
+//     });
+
+//     const brandData = await brands.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: project.brand_id
+//         }
+//       }
+//     });
+
+//     // Map platforms and sections to objects for easy lookup
+//     const platformMap = platforms.reduce((acc, p) => {
+//       acc[p.id] = p.toJSON();
+//       return acc;
+//     }, {});
+//     const sectionMap = sectionData.reduce((acc, s) => {
+//       acc[s.id] = s.toJSON();
+//       return acc;
+//     }, {});
+
+//     // Map metrics to objects for easy lookup
+//     const metricMap = metricsData.reduce((acc, m) => {
+//       acc[m.id] = m.toJSON();
+//       return acc;
+//     }, {});
+
+//     // Format metrics with platform, section, and metric details
+//     const formattedMetrics = userAnalyticsData.map(ua => {
+//       const metric = metricMap[ua.metric_id] || {};
+//       const platform = platformMap[ua.platform_id] || null;
+//       const section = sectionMap[ua.section_id] || null;
+
+//       return {
+//         metric_id: ua.metric_id,
+//         metric_name: metric.name || null,
+//         platform: platform,
+//         section: section,
+//         weights: ua.weights
+//       };
+//     });
+
+//     // Omit specific ID fields from the project data
+//     const { metric_id, brand_id, category_id, frequency_id, ...projectData } = project.toJSON();
+
+//     // Include the metrics and other details in the project data
+//     return {
+//       ...projectData,
+//       metrics: formattedMetrics,
+//       frequencies: frequencyData.map(f => f.name),
+//       categories: categoryData.map(c => c.name),
+//       brands: brandData.map(b => b.name)
+//     };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+
 const getProjectById = async (projectId) => {
   try {
     // Fetch the project by ID
@@ -95,12 +220,18 @@ const getProjectById = async (projectId) => {
       throw new Error('Project not found');
     }
 
+    // if (project.is_benchmark_saved) {
+    //   throw new Error('Project Benchmark has already been saved, you cannot create another instance.');
+    // }
+
     // Fetch metric combinations from UserAnalytics
     const userAnalyticsData = await userAnalytic.findAll({
       where: {
         project_id: projectId
       }
     });
+
+   
 
     // Extract metric_ids, platform_ids, and section_ids
     const metricIds = [...new Set(userAnalyticsData.map(ua => ua.metric_id).filter(id => id != null))];
@@ -175,7 +306,7 @@ const getProjectById = async (projectId) => {
       return acc;
     }, {});
 
-    // Format metrics with platform, section, and metric details
+    // Format metrics with platform, section, and metric details, and add brands and categories
     const formattedMetrics = userAnalyticsData.map(ua => {
       const metric = metricMap[ua.metric_id] || {};
       const platform = platformMap[ua.platform_id] || null;
@@ -186,7 +317,15 @@ const getProjectById = async (projectId) => {
         metric_name: metric.name || null,
         platform: platform,
         section: section,
-        weights: ua.weights
+        weights: ua.weights,
+        brands: brandData.map(b => ({
+          id: b.id,
+          name: b.name
+        })),
+        categories: categoryData.map(c => ({
+          id: c.id,
+          name: c.name
+        }))
       };
     });
 
@@ -205,6 +344,7 @@ const getProjectById = async (projectId) => {
     throw error;
   }
 };
+
 
 
 
@@ -309,6 +449,31 @@ const getProjectById = async (projectId) => {
       throw new Error('Error fetching URLs');
     }
   };
+
+  const saveMetrics = async (data) => {
+    console.log(data, "choceed data");
+    
+    try {
+        const newMetrics = await projectBenchmark.bulkCreate(data);
+        if(newMetrics){
+          const projectId = data[0].project_id;
+          if(projectId){
+            const projectData = await userProjects.findOne({where: {id: projectId}});
+
+            if(projectData){
+              projectData.is_benchmark_saved = true;
+          
+              // Save the updated project data
+              await projectData.save();
+            }
+          }
+        }
+        return  newMetrics;
+    } catch (error) {
+        console.error('Error in metrics service:', error);
+        throw new Error(error);
+    }}
+
   
 
   
@@ -319,5 +484,6 @@ module.exports = {
     getProjectById,
     getProjectByUserId,
     createOrUpdateUrls,
+    saveMetrics,
     getUrlsByUserId
 };

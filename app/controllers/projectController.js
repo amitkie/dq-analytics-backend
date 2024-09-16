@@ -39,6 +39,9 @@ const getProjectByIdController = async (req, res) => {
       if (error.message === 'Project not found') {
         return res.status(404).json({ message: error.message });
       }
+      // if (error.message === 'Project Benchmark has already been saved, you cannot create another instance.') {
+      //   return res.status(400).json({ message: error.message });
+      // }
   
       console.error('Error fetching project:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
@@ -64,6 +67,26 @@ const getProjectByIdController = async (req, res) => {
       console.error('Error fetching project:', error);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
+  };
+  const saveMetrics = async (req, res) => {
+    try {
+      // const { project_id, isOverall, isCategory, metrics, weights, benchmarks } = req.body;
+
+      // // Validate input
+      // if (!project_id || !Array.isArray(metrics) || !Array.isArray(weights) || !Array.isArray(benchmarks)) {
+      //     return res.status(400).json({ message: 'Invalid input data' });
+      // }
+
+      const newMetrics = await projectService.saveMetrics(
+         req.body
+      );
+      const successResponse = createSuccessResponse(201, 'User activity tracked successfully', newMetrics)
+
+      return res.status(200).json(successResponse);
+  } catch (error) {
+      console.error('Error saving metrics:', error);
+      res.status(500).json({ message: 'Internal Server Error',error:error.message });
+  }
   };
 
   const createUrl = async (req, res) => {
@@ -103,4 +126,4 @@ const getProjectByIdController = async (req, res) => {
   };
 
 
-module.exports = {createProject, getProjectByIdController ,getProjectByUserIdController, createUrl, getUrl};
+module.exports = {createProject, getProjectByIdController ,getProjectByUserIdController, saveMetrics, createUrl, getUrl};

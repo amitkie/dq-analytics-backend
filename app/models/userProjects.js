@@ -3,6 +3,11 @@ module.exports = (sequelize, Sequelize) => {
       project_name: {
         type: Sequelize.STRING
       },
+      is_benchmark_saved: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false 
+      },
       file_url:{
         type: Sequelize.STRING
       },
@@ -22,6 +27,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
         allowNull: true
         },
+      start_date:{
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      end_date:{
+        type: Sequelize.DATE,
+        allowNull: true
+      },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
