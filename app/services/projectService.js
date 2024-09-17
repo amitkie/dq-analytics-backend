@@ -1,5 +1,5 @@
 const { users, userProjects, metrics, platform, sections, frequencies, categories, brands , userUrls, userAnalytic, projectBenchmark} = require('../models');
-const { Op } = require('sequelize');
+const { Op , Sequelize} = require('sequelize');
  // Assuming your models are exported correctly
 
 
@@ -209,36 +209,183 @@ const { Op } = require('sequelize');
 // };
 
 
+// const getProjectById = async (projectId) => {
+//   try {
+//     // Fetch the project by ID
+//     const project = await userProjects.findOne({
+//       where: { id: projectId }
+//     });
+
+//     if (!project) {
+//       throw new Error('Project not found');
+//     }
+
+//     // if (project.is_benchmark_saved) {
+//     //   throw new Error('Project Benchmark has already been saved, you cannot create another instance.');
+//     // }
+
+//     // Fetch metric combinations from UserAnalytics
+//     const userAnalyticsData = await userAnalytic.findAll({
+//       where: {
+//         project_id: projectId
+//       }
+//     });
+
+//     console.log("userAnalytics", userAnalyticsData)
+
+   
+
+//     // Extract metric_ids, platform_ids, and section_ids
+//     const metricIds = [...new Set(userAnalyticsData.map(ua => ua.metric_id).filter(id => id != null))];
+//     const platformIds = [...new Set(userAnalyticsData.map(ua => ua.platform_id).filter(id => id != null))];
+//     const sectionIds = [...new Set(userAnalyticsData.map(ua => ua.section_id).filter(id => id != null))];
+
+//     // Fetch metrics
+//     const metricsData = await metrics.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: metricIds
+//         }
+//       }
+//     });
+
+//     console.log(metricsData, 'metricsData')
+
+//     // Fetch platforms
+//     const platforms = await platform.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: platformIds
+//         }
+//       }
+//     });
+
+//     console.log(platforms, 'platforms')
+
+
+//     // Fetch sections
+//     const sectionData = await sections.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: sectionIds
+//         }
+//       }
+//     });
+
+//     console.log(sectionData, 'sectionData')
+    
+
+//     // Fetch frequency, category, and brand names based on IDs
+//     const frequencyData = await frequencies.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: project.frequency_id
+//         }
+//       }
+//     });
+
+//     const categoryData = await categories.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: project.category_id
+//         }
+//       }
+//     });
+
+//     const brandData = await brands.findAll({
+//       where: {
+//         id: {
+//           [Op.in]: project.brand_id
+//         }
+//       }
+//     });
+
+//     // Map platforms and sections to objects for easy lookup
+//     const platformMap = platforms.reduce((acc, p) => {
+//       acc[p.id] = p.toJSON();
+//       return acc;
+//     }, {});
+//     const sectionMap = sectionData.reduce((acc, s) => {
+//       acc[s.id] = s.toJSON();
+//       return acc;
+//     }, {});
+
+//     // Map metrics to objects for easy lookup
+//     const metricMap = metricsData.reduce((acc, m) => {
+//       acc[m.id] = m.toJSON();
+//       return acc;
+//     }, {});
+
+//     // Format metrics with platform, section, and metric details, and add brands and categories
+//     const formattedMetrics = userAnalyticsData.map(ua => {
+//       const metric = metricMap[ua.metric_id] || {};
+//       const platform = platformMap[ua.platform_id] || null;
+//       const section = sectionMap[ua.section_id] || null;
+
+//       return {
+//         metric_id: ua.metric_id,
+//         metric_name: metric.name || null,
+//         platform: platform,
+//         section: section,
+//         weights: ua.weights,
+//         brands: brandData.map(b => ({
+//           id: b.id,
+//           name: b.name
+//         })),
+//         categories: categoryData.map(c => ({
+//           id: c.id,
+//           name: c.name
+//         }))
+//       };
+//     });
+
+//     // Omit specific ID fields from the project data
+//     const { metric_id, brand_id, category_id, frequency_id, ...projectData } = project.toJSON();
+
+//     // Include the metrics and other details in the project data
+//     return {
+//       ...projectData,
+//       metrics: formattedMetrics,
+//       frequencies: frequencyData.map(f => f.name),
+//       categories: categoryData.map(c => c.name),
+//       brands: brandData.map(b => b.name)
+//     };
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 const getProjectById = async (projectId) => {
   try {
     // Fetch the project by ID
     const project = await userProjects.findOne({
-      where: { id: projectId }
+      where: { id: projectId },
+      attributes: ['id', 'project_name', 'user_id', 'metric_id', 'brand_id', 'category_id', 'frequency_id', 'start_date', 'end_date', 'createdAt', 'updatedAt']
     });
 
     if (!project) {
       throw new Error('Project not found');
     }
 
-    // if (project.is_benchmark_saved) {
-    //   throw new Error('Project Benchmark has already been saved, you cannot create another instance.');
-    // }
-
-    // Fetch metric combinations from UserAnalytics
+    // Fetch distinct user analytics for the project
     const userAnalyticsData = await userAnalytic.findAll({
       where: {
-        project_id: projectId
-      }
+        project_id: projectId,
+        metric_id: {
+          [Op.in]: project.metric_id // Filter only the metrics that belong to this project
+        }
+      },
+      attributes: [
+        'metric_id', 'platform_id', 'section_id', 'weights'
+      ]
     });
 
-   
-
-    // Extract metric_ids, platform_ids, and section_ids
+    // Extract unique metric_ids, platform_ids, and section_ids
     const metricIds = [...new Set(userAnalyticsData.map(ua => ua.metric_id).filter(id => id != null))];
     const platformIds = [...new Set(userAnalyticsData.map(ua => ua.platform_id).filter(id => id != null))];
     const sectionIds = [...new Set(userAnalyticsData.map(ua => ua.section_id).filter(id => id != null))];
 
-    // Fetch metrics
+    // Fetch only the metrics that match the IDs from userProjects
     const metricsData = await metrics.findAll({
       where: {
         id: {
@@ -306,7 +453,7 @@ const getProjectById = async (projectId) => {
       return acc;
     }, {});
 
-    // Format metrics with platform, section, and metric details, and add brands and categories
+    // Format metrics with platform, section, and metric details
     const formattedMetrics = userAnalyticsData.map(ua => {
       const metric = metricMap[ua.metric_id] || {};
       const platform = platformMap[ua.platform_id] || null;
@@ -317,15 +464,7 @@ const getProjectById = async (projectId) => {
         metric_name: metric.name || null,
         platform: platform,
         section: section,
-        weights: ua.weights,
-        brands: brandData.map(b => ({
-          id: b.id,
-          name: b.name
-        })),
-        categories: categoryData.map(c => ({
-          id: c.id,
-          name: c.name
-        }))
+        weights: ua.weights
       };
     });
 
