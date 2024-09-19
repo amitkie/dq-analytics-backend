@@ -8,6 +8,13 @@ const { Op , Sequelize} = require('sequelize');
 
   try {
     // Find the user
+    const existingProject = await userProjects.findOne({
+      where: { project_name },
+    });
+    if (existingProject) {
+      throw new Error('Project name already exists. Please choose a different name.');
+    }
+
     const user = await users.findOne({ where: { id: user_id } });
     if (!user) {
       throw new Error('User not found');
@@ -85,6 +92,21 @@ const { Op , Sequelize} = require('sequelize');
     throw new Error(`Error in createProject: ${error.message}`);
   }
 }
+
+const checkProjectNameAvailability = async (project_name) => {
+  try {
+    const existingProject = await userProjects.findOne({
+      where: { project_name },
+    });
+
+    if (existingProject) {
+      return { available: false, message: 'Project name already exists.' };
+    }
+    return { available: true };
+  } catch (error) {
+    throw new Error(`Error checking project name availability: ${error.message}`);
+  }
+};
 
 // const getProjectById = async (projectId) => {
 //   try {
@@ -458,6 +480,7 @@ const getProjectById = async (projectId) => {
         section: section,
         weights: ua.weights,
         categories: categoryData.map(c => ({ id: c.id, name: c.name })),
+        brands: brandData.map(b => ({ id: b.id, name: b.name })),
       };
     });
 
@@ -614,6 +637,7 @@ const getProjectById = async (projectId) => {
 
 module.exports = {
     createProject,
+    checkProjectNameAvailability,
     getProjectById,
     getProjectByUserId,
     createOrUpdateUrls,

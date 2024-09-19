@@ -17,11 +17,35 @@ const createProject = async (req, res) => {
             const errorResponse = createErrorResponse(400, 'VALIDATION_ERROR', error.message);
             return res.status(400).json(errorResponse);
         }
+        if (error.message === 'Project name already exists. Please choose a different name.') {
+            const errorResponse = createErrorResponse(400, 'VALIDATION_ERROR', error.message);
+            return res.status(400).json(errorResponse);
+        }
 
         // Handle unknown errors
-        const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error.message);
+        const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR','Project name already exists. Please choose a different name.', error?.message);
         return res.status(500).json(errorResponse);
     }
+};
+
+const checkProjectName = async (req, res) => {
+  const { project_name } = req.query; // Assuming the project_name comes in the query params
+
+  if (!project_name) {
+    return res.status(400).json({ message: 'Project name is required.' });
+  }
+
+  try {
+    const result = await projectService.checkProjectNameAvailability(project_name);
+
+    if (!result.available) {
+      return res.status(409).json({ message: result.message });
+    }
+
+    return res.status(200).json({ message: 'Project name is available.' });
+  } catch (error) {
+    return res.status(500).json({ message: `Error: ${error.message}` });
+  }
 };
 
 const getProjectByIdController = async (req, res) => {
@@ -126,4 +150,4 @@ const getProjectByIdController = async (req, res) => {
   };
 
 
-module.exports = {createProject, getProjectByIdController ,getProjectByUserIdController, saveMetrics, createUrl, getUrl};
+module.exports = {createProject, getProjectByIdController ,getProjectByUserIdController, saveMetrics,checkProjectName, createUrl, getUrl};

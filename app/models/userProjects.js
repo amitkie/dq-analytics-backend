@@ -1,7 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
     const UserProjects = sequelize.define("userProjects", {
       project_name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true,
       },
       is_benchmark_saved: {
         type: Sequelize.BOOLEAN,
