@@ -513,7 +513,8 @@ const getProjectById = async (projectId) => {
       }
   
       let projectData = await userProjects.findAll({
-        where: { user_id: user_id }
+        where: { user_id: user_id },
+        order: [['createdAt', 'DESC']]
       });
   
       // Retrieve names for frequency, category, metric, and brand
