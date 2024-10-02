@@ -17,6 +17,7 @@ const getAllCategories = async () => {
     if (!categoryData) {
       throw new ValidationError("CATEGORY_NOT_FOUND", "Data not found.");
     }
+  
     return categoryData;
   } catch (error) {
     console.log(error, "erororooroororoororoororo");

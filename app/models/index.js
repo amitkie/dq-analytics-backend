@@ -44,6 +44,7 @@ db.userAnalytic = require("./userAnalytics.js")(sequelize, Sequelize);
 db.projectBenchmark = require("./projectBenchmarks.js")(sequelize, Sequelize);
 db.projectBenchmarkSection = require("./projectBenchmarkSection.js")(sequelize, Sequelize);
 db.projectBenchmarkPlatform = require("./projectBenchmarkPlatform.js")(sequelize, Sequelize);
+db.userProjectDQScore = require("./userProjectDQScore.js")(sequelize, Sequelize);
 
 
 

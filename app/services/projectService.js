@@ -1,10 +1,10 @@
-const { users, userProjects, metrics, platform, sections, frequencies, categories, brands , userUrls, userAnalytic, projectBenchmark} = require('../models');
-const { Op , Sequelize} = require('sequelize');
- // Assuming your models are exported correctly
+const { users, userProjects, metrics, platform, sections, frequencies, categories, brands, userUrls, userAnalytic, projectBenchmark } = require('../models');
+const { Op, Sequelize } = require('sequelize');
+// Assuming your models are exported correctly
 
 
- async function createProject(userData) {
-  const { project_name, user_id, metric_id, brand_id, category_id, frequency_id,start_date, end_date } = userData;
+async function createProject(userData) {
+  const { project_name, user_id, metric_id, brand_id, category_id, frequency_id, start_date, end_date } = userData;
 
   try {
     // Find the user
@@ -47,7 +47,7 @@ const { Op , Sequelize} = require('sequelize');
     // Retrieve all platforms and sections
     const platforms = await platform.findAll();
     const section = await sections.findAll();
-    
+
     // Convert platforms and sections to objects for easy lookup
     const platformMap = platforms.reduce((acc, p) => {
       acc[p.id] = p.toJSON();
@@ -92,6 +92,134 @@ const { Op , Sequelize} = require('sequelize');
     throw new Error(`Error in createProject: ${error.message}`);
   }
 }
+async function createProject(userData) {
+  const { project_name, user_id, metric_id, brand_id, category_id, frequency_id, start_date, end_date } = userData;
+
+  try {
+    // Find the user
+    const existingProject = await userProjects.findOne({
+      where: { project_name },
+    });
+    if (existingProject) {
+      throw new Error('Project name already exists. Please choose a different name.');
+    }
+
+    const user = await users.findOne({ where: { id: user_id } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Create the project
+    const project = await userProjects.create({
+      project_name,
+      user_id,
+      metric_id,
+      brand_id,
+      category_id,
+      frequency_id,
+      start_date,
+      end_date
+    });
+    if (!project) {
+      throw new Error('Project not created');
+    }
+
+    // Find metrics
+    const metricData = await metrics.findAll({
+      where: {
+        id: {
+          [Op.in]: metric_id
+        }
+      }
+    });
+
+    // Retrieve all platforms and sections
+    const platforms = await platform.findAll();
+    const section = await sections.findAll();
+
+    // Convert platforms and sections to objects for easy lookup
+    const platformMap = platforms.reduce((acc, p) => {
+      acc[p.id] = p.toJSON();
+      return acc;
+    }, {});
+    const sectionMap = section.reduce((acc, s) => {
+      acc[s.id] = s.toJSON();
+      return acc;
+    }, {});
+
+    // Format metrics
+    const formattedMetrics = metricData.map(metric => {
+      const platformData = platformMap[metric.platform_id] || null;
+      const sectionData = sectionMap[metric.section_id] || null;
+
+      return {
+        ...metric.toJSON(),
+        platform: platformData,
+        section: sectionData
+      };
+    });
+
+    console.log("Formatted Metrics:", formattedMetrics);
+
+    // Calculate weight for each entry
+    const numberOfEntries = formattedMetrics.length;
+    const weight = numberOfEntries > 0 ? 100 / numberOfEntries : 0;
+
+    // Store formatted data in UserAnalytics with calculated weights
+    const userAnalyticsEntries = formattedMetrics.map(metric => ({
+      project_id: project.id,
+      metric_id: metric.id,
+      platform_id: metric.platform ? metric.platform.id : null,
+      section_id: metric.section ? metric.section.id : null,
+      weights: weight // Assign the calculated weight
+    }));
+
+    await userAnalytic.bulkCreate(userAnalyticsEntries);
+
+    return project;
+  } catch (error) {
+    throw new Error(`Error in createProject: ${error.message}`);
+  }
+}
+async function updateProject(projectId, projectData) {
+  try {
+    // Find the project by its ID
+    const project = await userProjects.findByPk(projectId);
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    // Update the project with new data
+    await project.update(projectData);
+
+    // Return the updated project details
+    return project;
+  } catch (error) {
+    throw new Error(`Error updating project: ${error.message}`);
+  }
+}
+
+
+async function deleteProject(projectId) {
+  try {
+    // Find the project by its ID
+    const project = await userProjects.findByPk(projectId);  // Assuming Project is the correct model name
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    // Delete the project
+    await project.destroy();
+
+    // Return the deleted project details (or confirmation message)
+    return { message: 'Project deleted successfully', projectId };
+  } catch (error) {
+    throw new Error(`Error deleting project: ${error.message}`);
+  }
+}
+
 
 const checkProjectNameAvailability = async (project_name) => {
   try {
@@ -255,7 +383,7 @@ const checkProjectNameAvailability = async (project_name) => {
 
 //     console.log("userAnalytics", userAnalyticsData)
 
-   
+
 
 //     // Extract metric_ids, platform_ids, and section_ids
 //     const metricIds = [...new Set(userAnalyticsData.map(ua => ua.metric_id).filter(id => id != null))];
@@ -295,7 +423,7 @@ const checkProjectNameAvailability = async (project_name) => {
 //     });
 
 //     console.log(sectionData, 'sectionData')
-    
+
 
 //     // Fetch frequency, category, and brand names based on IDs
 //     const frequencyData = await frequencies.findAll({
@@ -381,18 +509,18 @@ const getProjectById = async (projectId) => {
   try {
     const project = await userProjects.findOne({
       where: { id: projectId },
-      attributes: ['id', 'project_name', 'user_id', 'metric_id','is_benchmark_saved', 'brand_id', 'category_id', 'frequency_id', 'start_date', 'end_date', 'createdAt', 'updatedAt']
+      attributes: ['id', 'project_name', 'user_id', 'metric_id', 'is_benchmark_saved', 'brand_id', 'category_id', 'frequency_id', 'start_date', 'end_date', 'createdAt', 'updatedAt']
     });
 
     if (!project) {
       throw new Error('Project not found');
     }
-    console.log('project---------------------',project)
+    console.log('project---------------------', project)
     const userAnalyticsData = await userAnalytic.findAll({
       where: {
         project_id: projectId,
         metric_id: {
-          [Op.in]: project.metric_id 
+          [Op.in]: project.metric_id
         }
       },
       attributes: [
@@ -462,7 +590,7 @@ const getProjectById = async (projectId) => {
       return acc;
     }, {});
 
- 
+
     const metricMap = metricsData.reduce((acc, m) => {
       acc[m.id] = m.toJSON();
       return acc;
@@ -504,144 +632,184 @@ const getProjectById = async (projectId) => {
 
 
 
-  const getProjectByUserId = async (user_id) => {
-    try {
-      const user = await users.findOne({ where: { id: user_id } });
-  
-      if (!user) {
-        throw new Error('User not Found');
-      }
-  
-      let projectData = await userProjects.findAll({
-        where: { user_id: user_id },
-        order: [['createdAt', 'DESC']]
-      });
-  
-      // Retrieve names for frequency, category, metric, and brand
-      for (let project of projectData) {
-        if (project.frequency_id) {
-          const frequenciesData = await frequencies.findAll({ 
-            where: { id: project.frequency_id },
-            attributes: ['name']
-          });
-          project.dataValues.frequencyNames = frequenciesData.map(frequency => frequency.name);
-        }
-  
-        if (project.category_id) {
-          const categoriesData = await categories.findAll({
-            where: { id: project.category_id },
-            attributes: ['name']
-          });
-          project.dataValues.categoryNames = categoriesData.map(category => category.name);
-        }
-  
-        if (project.metric_id) {
-          const metricsData = await metrics.findAll({
-            where: { id: project.metric_id },
-            attributes: ['name']
-          });
-          project.dataValues.metricNames = metricsData.map(metric => metric.name);
-        }
-  
-        if (project.brand_id) {
-          const brandsData = await brands.findAll({
-            where: { id: project.brand_id },
-            attributes: ['name']
-          });
-          project.dataValues.brandNames = brandsData.map(brand => brand.name);
-        }
-  
-        // Remove the original ID arrays
-        delete project.dataValues.metric_id;
-        delete project.dataValues.brand_id;
-        delete project.dataValues.category_id;
-        delete project.dataValues.frequency_id;
-      }
-  
-      return projectData;
-  
-    } catch (error) {
-      throw new Error(error.message);
+const getProjectByUserId = async (user_id) => {
+  try {
+    const user = await users.findOne({ where: { id: user_id } });
+
+    if (!user) {
+      throw new Error('User not Found');
     }
+
+    let projectData = await userProjects.findAll({
+      where: { user_id: user_id },
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Retrieve names for frequency, category, metric, and brand
+    for (let project of projectData) {
+      if (project.frequency_id) {
+        const frequenciesData = await frequencies.findAll({
+          where: { id: project.frequency_id },
+          attributes: ['name']
+        });
+        project.dataValues.frequencyNames = frequenciesData.map(frequency => frequency.name);
+      }
+
+      if (project.category_id) {
+        const categoriesData = await categories.findAll({
+          where: { id: project.category_id },
+          attributes: ['name']
+        });
+        project.dataValues.categoryNames = categoriesData.map(category => category.name);
+      }
+
+      if (project.metric_id) {
+        const metricsData = await metrics.findAll({
+          where: { id: project.metric_id },
+          attributes: ['name']
+        });
+        project.dataValues.metricNames = metricsData.map(metric => metric.name);
+      }
+
+      if (project.brand_id) {
+        const brandsData = await brands.findAll({
+          where: { id: project.brand_id },
+          attributes: ['name']
+        });
+        project.dataValues.brandNames = brandsData.map(brand => brand.name);
+      }
+
+      // Remove the original ID arrays
+      delete project.dataValues.metric_id;
+      delete project.dataValues.brand_id;
+      delete project.dataValues.category_id;
+      delete project.dataValues.frequency_id;
+    }
+
+    return projectData;
+
+  } catch (error) {
+    throw new Error(error.message);
   }
+}
 
-  const createOrUpdateUrls = async (userId, tabName, urls) => {
-    try {
-      const [userUrl] = await userUrls.findOrCreate({
-        where: { user_id: userId },
-        defaults: { tab_name: tabName, urls: [] },
-      });
-  
-      // Update the URLs
-      userUrl.tab_name = tabName;
-      userUrl.urls = [...new Set([...userUrl.urls, ...urls])]; // Prevent duplicate URLs
-      await userUrl.save();
-  
-      return {
-        message:  'URLs created successfully' ,
-        urls: userUrl.urls,
-      };
-    } catch (error) {
-      console.error('Error in createOrUpdateUrls service:', error);
-      throw new Error('Error creating or updating URLs');
+const createOrUpdateUrls = async (userId, tabName, urls) => {
+  try {
+    const [userUrl] = await userUrls.findOrCreate({
+      where: { user_id: userId },
+      defaults: { tab_name: tabName, urls: [] },
+    });
+
+    // Update the URLs
+    userUrl.tab_name = tabName;
+    userUrl.urls = [...new Set([...userUrl.urls, ...urls])]; // Prevent duplicate URLs
+    await userUrl.save();
+
+    return {
+      message: 'URLs created successfully',
+      urls: userUrl.urls,
+    };
+  } catch (error) {
+    console.error('Error in createOrUpdateUrls service:', error);
+    throw new Error('Error creating or updating URLs');
+  }
+};
+
+const getUrlsByUserId = async (userId) => {
+  try {
+    const userUrl = await userUrls.findOne({
+      where: { user_id: userId }
+    });
+
+    if (!userUrl) {
+      throw new Error('User URL entry not found');
     }
-  };
 
-  const getUrlsByUserId = async (userId) => {
-    try {
-      const userUrl = await userUrls.findOne({
-        where: { user_id: userId }
-      });
-  
-      if (!userUrl) {
-        throw new Error('User URL entry not found');
-      }
-  
-      return {
-        tabName: userUrl.tab_name,
-        urls: userUrl.urls,
-      };
-    } catch (error) {
-      console.error('Error in getUrlsByUserId service:', error);
-      throw new Error('Error fetching URLs');
-    }
-  };
+    return {
+      tabName: userUrl.tab_name,
+      urls: userUrl.urls,
+    };
+  } catch (error) {
+    console.error('Error in getUrlsByUserId service:', error);
+    throw new Error('Error fetching URLs');
+  }
+};
 
-  const saveMetrics = async (data) => {
-    console.log(data, "choceed data");
-    
-    try {
-        const newMetrics = await projectBenchmark.bulkCreate(data);
-        if(newMetrics){
-          const projectId = data[0].project_id;
-          if(projectId){
-            const projectData = await userProjects.findOne({where: {id: projectId}});
+const saveMetrics = async (data) => {
+  console.log(data, "choceed data");
 
-            if(projectData){
-              projectData.is_benchmark_saved = true;
-          
-              // Save the updated project data
-              await projectData.save();
-            }
-          }
+  try {
+    const newMetrics = await projectBenchmark.bulkCreate(data);
+    if (newMetrics) {
+      const projectId = data[0].project_id;
+      if (projectId) {
+        const projectData = await userProjects.findOne({ where: { id: projectId } });
+
+        if (projectData) {
+          projectData.is_benchmark_saved = true;
+
+          // Save the updated project data
+          await projectData.save();
         }
-        return  newMetrics;
-    } catch (error) {
-        console.error('Error in metrics service:', error);
-        throw new Error(error);
-    }}
+      }
+    }
+    return newMetrics;
+  } catch (error) {
+    console.error('Error in metrics service:', error);
+    throw new Error(error);
+  }
+}
 
-  
+const getProjectByIds = async (user_id,frequency_id, category_ids) => {
+  try {
+    const query = {
+      user_id: user_id 
+    };
+    
+    if (frequency_id) {
+      query.frequency_id = { [Op.contains]: [frequency_id] };
+    }
 
+    if (category_ids && Array.isArray(category_ids)) {
+      query.category_id = { [Op.contains]: category_ids };
+    }
+
+    const projects = await userProjects.findAll({
+      where: query,
+    });
+
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw new Error("Error fetching projects");
+  }
+};
+
+const getDateRangeByUserId = async(user_id, frequency_id) => {
+  const query = {
+    user_id: user_id
+  }
+  if (frequency_id) {
+    query.frequency_id = { [Op.contains]: [frequency_id] };
+  }
   
+  const projectsData = await userProjects.findAll(
+   { where:query}
+  )
+}
+
+
 
 
 module.exports = {
-    createProject,
-    checkProjectNameAvailability,
-    getProjectById,
-    getProjectByUserId,
-    createOrUpdateUrls,
-    saveMetrics,
-    getUrlsByUserId
+  createProject,
+  checkProjectNameAvailability,
+  getProjectById,
+  getProjectByUserId,
+  createOrUpdateUrls,
+  saveMetrics,
+  getUrlsByUserId,
+  getProjectByIds,
+  updateProject,
+  deleteProject
 };
