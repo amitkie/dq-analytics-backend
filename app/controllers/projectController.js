@@ -167,6 +167,31 @@ const saveMetrics = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
+const removeMetricFromProject = async (req, res) => {
+  try {
+    const { projectId, metricId } = req.params;
+
+    // Call the service to delete the metric from the project
+    const response = await projectService.removeMetricFromProject(projectId, metricId);
+
+    // Send success response
+    const successResponse = createSuccessResponse(200, 'Metric removed successfully from the project', response);
+    return res.status(200).json(successResponse);
+
+  } catch (error) {
+    console.error('Error in removeMetricFromProject:', error);
+
+    // Handle specific errors (Project not found, Metric not found, etc.)
+    if (error.message === 'Project not found' || error.message === 'Metric not found in this project') {
+      const errorResponse = createErrorResponse(404, 'VALIDATION_ERROR', error.message);
+      return res.status(404).json(errorResponse);
+    }
+
+    // Handle other unknown errors
+    const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'An error occurred while removing the metric from the project.', error.message);
+    return res.status(500).json(errorResponse);
+  }
+};
 
 const createUrl = async (req, res) => {
   const { userId, tabName, urls } = req.body;
@@ -220,6 +245,36 @@ const getProject = async (req, res) => {
   }
 };
 
+const createUserProjectDQScore = async (req, res) => {
+  try {
+    // Extract the array of DQ scores from the request body
+    const dqScores = req.body;
+
+    // Validate input: Ensure it's an array and not empty
+    if (!Array.isArray(dqScores) || dqScores.length === 0) {
+        return res.status(400).json({
+            message: 'Invalid input. Expecting a non-empty array of DQ scores.'
+        });
+    }
+
+    // Pass the DQ score array to the service for bulk creation
+    const newScores = await projectService.createUserProjectDQScore(dqScores);
+
+    return res.status(201).json({
+        message: 'User Project DQ Scores created successfully',
+        data: newScores
+    });
+
+} catch (error) {
+    return res.status(500).json({
+        message: 'Error creating User Project DQ Scores',
+        error: error.message
+    });
+}
+};
 
 
-module.exports = { getProject, createProject, updateProject, deleteProject, getProjectByIdController, getProjectByUserIdController, saveMetrics, checkProjectName, createUrl, getUrl };
+
+
+
+module.exports = { getProject, createProject, updateProject, removeMetricFromProject, createUserProjectDQScore, deleteProject, getProjectByIdController, getProjectByUserIdController, saveMetrics, checkProjectName, createUrl, getUrl };

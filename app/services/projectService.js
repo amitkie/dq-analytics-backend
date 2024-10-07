@@ -1,4 +1,4 @@
-const { users, userProjects, metrics, platform, sections, frequencies, categories, brands, userUrls, userAnalytic, projectBenchmark } = require('../models');
+const { users, userProjects, metrics, platform, sections, frequencies, categories, brands, userUrls, userAnalytic, projectBenchmark, userProjectDQScore } = require('../models');
 const { Op, Sequelize } = require('sequelize');
 // Assuming your models are exported correctly
 
@@ -219,6 +219,41 @@ async function deleteProject(projectId) {
     throw new Error(`Error deleting project: ${error.message}`);
   }
 }
+
+const removeMetricFromProject = async (projectId, metricId) => {
+  try {
+    
+    // Find the project by ID
+    const project = await userProjects.findOne({ where: { id: projectId } });
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+
+
+    // Check if the metric exists in the metric_id array
+    const metricArray = project.metric_id;
+    // console.log("kajallllll",metricArray.includes(metricId));
+
+
+    const metricIdInt = parseInt(metricId, 10); // Ensure metricId is an integer
+
+
+    if (!metricArray.includes(metricIdInt)) {
+      throw new Error('Metric not found in this project');
+    }
+
+    // Remove the metric from the array
+    const updatedMetricArray = metricArray.filter(id => id !== metricIdInt);
+
+    // Update the project with the new metric_id array
+    await project.update({ metric_id: updatedMetricArray });
+
+    return { message: 'Metric removed successfully from the project' };
+  } catch (error) {
+    throw new Error(`Error in removeMetricFromProject: ${error.message}`);
+  }
+};
 
 
 const checkProjectNameAvailability = async (project_name) => {
@@ -629,9 +664,6 @@ const getProjectById = async (projectId) => {
   }
 };
 
-
-
-
 const getProjectByUserId = async (user_id) => {
   try {
     const user = await users.findOne({ where: { id: user_id } });
@@ -798,6 +830,34 @@ const getDateRangeByUserId = async(user_id, frequency_id) => {
   )
 }
 
+const createUserProjectDQScore =async (dqScoreArray) => {
+  const scoreDataArray = dqScoreArray.map(score => ({
+      user_id: score.user_id,
+      project_id: score.project_id,
+      brand_id: score.brand_id,
+      brand_name: score.brand_name,
+      section_name: score.section_name,
+      section_id: score.section_id,
+      category_id: score.category_id,
+      category_name: score.category_name,
+      dq: score.dq,
+      ecom_dq: score.ecom_dq,
+      social_dq: score.social_dq,
+      paid_dq: score.paid_dq,
+      brand_perf_dq: score.brand_perf_dq,
+      createdAt: new Date(),
+      updatedAt: new Date()
+  }));
+
+  // Perform bulk insert operation using Sequelize
+  try {
+      const newScores = await userProjectDQScore.bulkCreate(scoreDataArray, { returning: true });
+      return newScores;
+  } catch (error) {
+      // Throw the error to be handled by the controller
+      throw new Error(`Failed to create DQ scores: ${error.message}`);
+  }
+};
 
 
 
@@ -807,9 +867,11 @@ module.exports = {
   getProjectById,
   getProjectByUserId,
   createOrUpdateUrls,
+  createUserProjectDQScore,
   saveMetrics,
   getUrlsByUserId,
   getProjectByIds,
   updateProject,
-  deleteProject
+  deleteProject,
+  removeMetricFromProject
 };
