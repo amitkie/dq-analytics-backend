@@ -13,14 +13,12 @@ const { ValidationError } = require("../handlers/errorHandler");
 const getAllCategories = async () => {
   try {
     const categoryData = await categories.findAll();
-    console.log(categoryData, "hugug");
     if (!categoryData) {
       throw new ValidationError("CATEGORY_NOT_FOUND", "Data not found.");
     }
   
     return categoryData;
   } catch (error) {
-    console.log(error, "erororooroororoororoororo");
     throw error;
   }
 };
@@ -90,7 +88,6 @@ const getAllBrandsWithCategories = async () => {
       category: brand.category ? brand.category.name : null, // Return the category name or null if not found
     }));
   } catch (error) {
-    console.error("Error in getAllBrandsWithCategories:", error);
     throw error;
   }
 };
@@ -127,16 +124,59 @@ const getBrandsByCategoryIds = async (categoryIds) => {
   }
 };
 
-const getPlatformsBySectionId = async (sectionId) => {
+
+const getPlatformsBySectionId = async (sectionIds) => {
+  console.log(sectionIds, 'sectionIds')
   try {
-    const platformData = await platform.findAll({
-      where: { section_id: sectionId },
+    // Step 1: Find all sections by sectionIds
+    const sectionsData = await sections.findAll({
+      where: {
+        id: {
+          [Op.in]: sectionIds,
+        },
+      },
     });
-    if (!platformData) {
-      throw new ValidationError("PLATFORM_NOT_FOUND", "Data not found.");
+
+    console.log(sectionsData, 'sectionsData')
+
+    if (!sectionsData || sectionsData.length === 0) {
+      throw new ValidationError("SECTION_NOT_FOUND", "No sections found.");
     }
-    return platformData;
+
+    // Step 2: Extract platform IDs from the sections
+    const platformIds = sectionsData.map(section => section.platform_id).filter(Boolean);
+
+    if (!platformIds.length) {
+      throw new ValidationError("PLATFORM_ID_NOT_FOUND", "No platform IDs associated with the sections.");
+    }
+
+    // Step 3: Fetch platform details by platformIds
+    const platforms = await platform.findAll({
+      where: {
+        id: {
+          [Op.in]: platformIds,
+        },
+      },
+    });
+
+    if (!platforms || platforms.length === 0) {
+      throw new ValidationError("PLATFORM_NOT_FOUND", "No platforms found.");
+    }
+
+    // Step 4: Structure and return the platform data with section info
+    const result = sectionsData.map(section => {
+      const platform = platforms.find(p => p.id === section.platform_id);
+      return {
+        sectionId: section.id,
+        sectionName: section.name,
+        platformId: section.platform_id,
+        platformName: platform ? platform.name : null,
+      };
+    });
+
+    return result;
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
@@ -199,10 +239,8 @@ const getAllMetrics = async () => {
 // }
 
 const findSectionsByPlatformIds = async (platformIds) => {
-  console.log("Platform IDs:", platformIds);
 
   try {
-    console.log("Querying sections...");
 
     const sectionsData = await sections.findAll({
       where: {
@@ -211,8 +249,6 @@ const findSectionsByPlatformIds = async (platformIds) => {
         },
       },
     });
-
-    console.log("Sections Data:", sectionsData);
 
     if (sectionsData.length === 0) {
       throw new ValidationError(
@@ -223,7 +259,6 @@ const findSectionsByPlatformIds = async (platformIds) => {
 
     return sectionsData;
   } catch (error) {
-    console.error("Error fetching sections:", error);
     throw error;
   }
 };

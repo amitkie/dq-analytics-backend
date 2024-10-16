@@ -68,14 +68,12 @@ await userActivities.create(userActivityData);
 
 async function authenticateUser(userData) {
   const { email, password } = userData;
-  console.log(userData, "Debugging user data");
 
   try {
     const user = await users.findOne({ where: { email: email } });
-    console.log(user, 'Debugging user query result');
 
     if (!user) {
-      return { error: 'User not found' }; // User not found
+      return { error: 'User not found' }; 
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -89,7 +87,6 @@ async function authenticateUser(userData) {
     };
 
   } catch (error) {
-    console.error('Error during authentication:', error);
     throw error; // Re-throw the error or handle it appropriately
   }
 }

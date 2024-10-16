@@ -10,7 +10,6 @@ const createProject = async (req, res) => {
     const successResponse = createSuccessResponse(200, 'Project created successfully', response);
     return res.status(200).json(successResponse);
   } catch (error) {
-    console.error('Error in createProject:', error);
 
     // Handle known validation errors
     if (error.message === 'User not found') {
@@ -40,7 +39,6 @@ const updateProject = async (req, res) => {
     return res.status(200).json(successResponse);
 
   } catch (error) {
-    console.error('Error in updateProject:', error);
 
     // Handle specific errors (e.g., Project not found)
     if (error.message === 'Project not found') {
@@ -67,9 +65,6 @@ const deleteProject = async (req, res) => {
     return res.status(200).json(successResponse);
 
   } catch (error) {
-    console.error('Error in deleteProject:', error);
-
-    // Handle specific errors (Project not found, etc.)
     if (error.message === 'Project not found') {
       const errorResponse = createErrorResponse(404, 'VALIDATION_ERROR', error.message);
       return res.status(404).json(errorResponse);
@@ -121,7 +116,6 @@ const getProjectByIdController = async (req, res) => {
     //   return res.status(400).json({ message: error.message });
     // }
 
-    console.error('Error fetching project:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -142,7 +136,6 @@ const getProjectByUserIdController = async (req, res) => {
       return res.status(404).json({ message: error.message });
     }
 
-    console.error('Error fetching project:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -163,10 +156,10 @@ const saveMetrics = async (req, res) => {
 
     return res.status(200).json(successResponse);
   } catch (error) {
-    console.error('Error saving metrics:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
+
 const removeMetricFromProject = async (req, res) => {
   try {
     const { projectId, metricId } = req.params;
@@ -179,8 +172,6 @@ const removeMetricFromProject = async (req, res) => {
     return res.status(200).json(successResponse);
 
   } catch (error) {
-    console.error('Error in removeMetricFromProject:', error);
-
     // Handle specific errors (Project not found, Metric not found, etc.)
     if (error.message === 'Project not found' || error.message === 'Metric not found in this project') {
       const errorResponse = createErrorResponse(404, 'VALIDATION_ERROR', error.message);
@@ -205,7 +196,6 @@ const createUrl = async (req, res) => {
       urls: userUrl.urls,
     });
   } catch (error) {
-    console.error('Error creating or updating URLs:', error);
     res.status(500).json({ message: 'Error creating or updating URLs', error });
   }
 };
@@ -221,7 +211,6 @@ const getUrl = async (req, res) => {
       data
     });
   } catch (error) {
-    console.error('Error fetching URLs:', error);
     res.status(500).json({
       message: 'Error fetching URLs',
       error: error.message
@@ -252,29 +241,146 @@ const createUserProjectDQScore = async (req, res) => {
 
     // Validate input: Ensure it's an array and not empty
     if (!Array.isArray(dqScores) || dqScores.length === 0) {
-        return res.status(400).json({
-            message: 'Invalid input. Expecting a non-empty array of DQ scores.'
-        });
+      return res.status(400).json({
+        message: 'Invalid input. Expecting a non-empty array of DQ scores.'
+      });
     }
 
     // Pass the DQ score array to the service for bulk creation
     const newScores = await projectService.createUserProjectDQScore(dqScores);
 
     return res.status(201).json({
-        message: 'User Project DQ Scores created successfully',
-        data: newScores
+      message: 'User Project DQ Scores created successfully',
+      data: newScores
     });
 
-} catch (error) {
+  } catch (error) {
     return res.status(500).json({
-        message: 'Error creating User Project DQ Scores',
-        error: error.message
+      message: 'Error creating User Project DQ Scores',
+      error: error.message
     });
-}
+  }
+};
+
+const createMetricGroup = async (req, res) => {
+  try {
+    
+    const { name, project_id, metric_ids } = req.body;
+
+    if (metric_ids.length < 0) {
+      return res.status(400).json({
+        message: 'Invalid input. Please select minimum two metrics'
+      });
+    }
+
+    if (!name || !project_id || !Array.isArray(metric_ids)) {
+      return res.status(400).json({
+        message: 'Invalid input. Please provide name, project_id, and metric_ids (array).'
+      });
+    }
+
+    const newMetricGroup = await projectService.saveGroupMetric({ name, project_id, metric_ids });
+
+    return res.status(201).json({
+      message: 'Metric Group saved successfully',
+      data: newMetricGroup
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error saving Metric Group',
+      error: error.message
+    });
+  }
+};
+
+const createMetricThemeGroup = async (req, res) => {
+  try {
+    const { name, project_id, metric_ids, metric_group_ids } = req.body;
+
+    // Validate input fields
+    if (!name || !project_id || !Array.isArray(metric_ids) || metric_ids.length < 1 || metric_group_ids.length < 1) {
+      return res.status(400).json({
+        message: 'Invalid input. Please provide name, project_id, and metric_ids (array of at least two metrics).'
+      });
+    }
+
+    // Call the service to save the metric theme group
+    const newMetricGroup = await projectService.saveGroupMetricTheme({ name, project_id, metric_ids, metric_group_ids });
+
+    return res.status(201).json({
+      message: 'Metric Group saved successfully',
+      data: newMetricGroup
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error saving Metric Group',
+      error: error.message
+    });
+  }
+};
+
+const getMetricThemeGroups = async (req, res) => {
+  try {
+    const { project_id } = req.params;
+
+    // Call the service to fetch metric groups by project ID
+    const metricGroups = await projectService.getMetricGroupsByProjectId(project_id);
+
+    return res.status(200).json({
+      message: 'Metric Groups fetched successfully',
+      data: metricGroups
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error fetching Metric Groups',
+      error: error.message
+    });
+  }
+};
+
+const getGroupMetrics = async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    if (!projectId) {
+      return res.status(400).json({
+        message: 'Project ID is required.'
+      });
+    }
+
+    const metricGroups = await projectService.getGroupMetrics(projectId);
+
+    return res.status(200).json({
+      message: 'Metric Groups fetched successfully',
+      data: metricGroups
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error fetching Metric Groups',
+      error: error.message
+    });
+  }
 };
 
 
-
-
-
-module.exports = { getProject, createProject, updateProject, removeMetricFromProject, createUserProjectDQScore, deleteProject, getProjectByIdController, getProjectByUserIdController, saveMetrics, checkProjectName, createUrl, getUrl };
+module.exports = {
+  getProject,
+  createProject,
+  updateProject,
+  removeMetricFromProject,
+  createUserProjectDQScore,
+  deleteProject,
+  getProjectByIdController,
+  getProjectByUserIdController,
+  saveMetrics,
+  checkProjectName,
+  createUrl,
+  getUrl,
+  createMetricGroup,
+  getGroupMetrics,
+  createMetricThemeGroup,
+  getMetricThemeGroups
+};

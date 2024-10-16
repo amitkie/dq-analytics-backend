@@ -33,9 +33,8 @@ const seedFrequency = async () => {
     // Seed frequency
     await Promise.all(frequencyToSeed.map(category => Category.create(category)));
 
-    console.log('Frequency have been seeded successfully.');
+    // console.log('Frequency have been seeded successfully.');
   } catch (error) {
-    console.error('Error seeding frequency:', error);
   } finally {
     // Close the database connection
     await sequelize.close();

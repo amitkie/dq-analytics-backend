@@ -32,7 +32,6 @@ router.post('/', async (req,res) => {
     
         res.status(200).json({ message: 'Data seeded successfully' });
       } catch (error) {
-        console.error('Error seeding data:', error);
         res.status(500).json({ message: 'Failed to seed data', error: error.message });
       }    
 })

@@ -84,12 +84,12 @@ const seedCategoriesAndBrands = async () => {
         });
       }));
 
-      console.log(`Category '${category.name}' and brands seeded successfully.`);
+      // console.log(`Category '${category.name}' and brands seeded successfully.`);
     }
 
-    console.log('Categories and brands seeding completed.');
+    // console.log('Categories and brands seeding completed.');
   } catch (error) {
-    console.error('Error seeding categories and brands:', error);
+    // console.error('Error seeding categories and brands:', error);
   } finally {
     // Close the database connection
     await sequelize.close();

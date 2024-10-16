@@ -64,7 +64,7 @@ db.sequelize.sync()
     console.log("Database synced.");
   })
   .catch((err) => {
-    console.error("Failed to sync database:", err.message);
+    // console.error("Failed to sync database:", err.message);
   });
 
 // Define routes

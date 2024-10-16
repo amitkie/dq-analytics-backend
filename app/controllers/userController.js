@@ -11,7 +11,6 @@ const userActivityTracker = async (req, res) => {
         const successResponse = createSuccessResponse(200, 'User activity tracked successfully', response)
         return res.status(200).json(successResponse);
     } catch (error) {
-        console.error('Error in userActivityTracker:', error);
         if (error.message.includes('count has reached its limit')) {
             const errorResponse = createErrorResponse(400, 'LIMIT_REACHED', error.message);
             return res.status(400).json(errorResponse);
@@ -32,7 +31,6 @@ const updateDBCreationStatus = async (req, res) => {
         const successResponse = createSuccessResponse(200, 'Database creation status updated successfully', response);
         return res.status(200).json(successResponse);
     } catch (error) {
-        console.error('Error in userActivityTracker:', error);
         if (error.message.includes('count has reached its limit')) {
             const errorResponse = createErrorResponse(400, 'LIMIT_REACHED', error.message);
             return res.status(400).json(errorResponse);
@@ -53,7 +51,6 @@ const updateSchemaTableCreationStatus = async (req, res) => {
         const successResponse = createSuccessResponse(200, 'Schema and table creation status updated successfully', response);
         return res.status(200).json(successResponse);
     } catch (error) {
-        console.error('Error in userActivityTracker:', error);
         if (error.message.includes('count has reached its limit')) {
             const errorResponse = createErrorResponse(400, 'LIMIT_REACHED', error.message);
             return res.status(400).json(errorResponse);
@@ -73,7 +70,6 @@ const getDBAndSchemaTableCreationStatus = async (req, res) => {
         const successResponse = createSuccessResponse(200, 'Database and schema/table creation status fetched successfully', response);
         return res.status(200).json(successResponse);
     } catch (error) {
-        console.error('Error in getDBAndSchemaTableCreationStatus:', error);
         const errorResponse = createErrorResponse(500, 'INTERNAL_SERVER_ERROR', 'Internal Server Error', error.message);
         return res.status(500).json(errorResponse);
     }

@@ -35,9 +35,8 @@ const seedCategories = async () => {
     // Seed categories
     await Promise.all(categoriesToSeed.map(category => Category.create(category)));
 
-    console.log('Categories have been seeded successfully.');
+    // console.log('Categories have been seeded successfully.');
   } catch (error) {
-    console.error('Error seeding categories:', error);
   } finally {
     // Close the database connection
     await sequelize.close();

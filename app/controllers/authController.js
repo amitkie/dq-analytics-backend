@@ -10,7 +10,6 @@ const createUser = async (req, res) => {
       const successResponse = createSuccessResponse(200, 'User registered successfully', response )
       return res.status(200).json(successResponse);
     } catch (error) {
-      console.error('Error in createUser:', error);
       if (error instanceof ValidationError) {
         const errorResponse = createErrorResponse(400, 'VALIDATION_ERROR', error.message, error.errors);
         return res.status(400).json(errorResponse);
@@ -38,7 +37,6 @@ const createUser = async (req, res) => {
       return res.status(200).json(successResponse);
   
     } catch (error) {
-      console.error('Error during login:', error);
   
       if (error instanceof ValidationError) {
         const errorResponse = createErrorResponse(400, error.code, error.message);

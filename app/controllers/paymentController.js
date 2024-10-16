@@ -9,7 +9,6 @@ async function createPayment(req, res) {
         const successResponse = createSuccessResponse(201, 'Payment created successfully', paymentData);
         return res.status(201).json(successResponse);
     } catch (error) {
-        console.error('Error in createPayment:', error);
 
         if (error.message === 'User not found') {
             const errorResponse = createErrorResponse(400, 'VALIDATION_ERROR', error.message);

@@ -22,13 +22,13 @@ router.get(
 );
 router.get("/get-all-categories", getAllCategoriesController);
 router.post(
-  "/get-all-categories-by-brand-ids/",
+  "/get-all-categories-by-brand-ids",
   getBrandsByCategoryIdController
 );
 router.get("/get-all-sections", getAllSectionController);
 router.get("/get-all-platforms", getAllPlatformController);
-router.get(
-  "/get-all-platforms-by-section-id/:section_id",
+router.post(
+  "/get-all-platforms-by-section-id",
   getPlatformsBySectionIdController
 );
 router.get("/get-all-metrics", getAllMetricsController);

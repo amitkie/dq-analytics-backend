@@ -3,7 +3,7 @@ module.exports = {
   USER: "KIESQUAREDE",
   PASSWORD: "KIESQUARE123",
   DB: "KIESQUAREDE",
-  PORT: 5434, // Ensure this is the correct port
+  PORT: 5434, 
   dialect: "postgres",
   pool: {
     max: 5,
@@ -14,7 +14,7 @@ module.exports = {
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // For development; set to true for production
+      rejectUnauthorized: false, 
     },
   },
 };

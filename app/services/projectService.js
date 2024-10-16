@@ -1,6 +1,5 @@
-const { users, userProjects, metrics, platform, sections, frequencies, categories, brands, userUrls, userAnalytic, projectBenchmark, userProjectDQScore } = require('../models');
+const { users,metricGroup, userProjects, metrics, platform, sections, frequencies, categories, brands, userUrls, userAnalytic, projectBenchmark, userProjectDQScore, superThemeMetricGroup } = require('../models');
 const { Op, Sequelize } = require('sequelize');
-// Assuming your models are exported correctly
 
 
 async function createProject(userData) {
@@ -69,8 +68,6 @@ async function createProject(userData) {
         section: sectionData
       };
     });
-
-    console.log("Formatted Metrics:", formattedMetrics);
 
     // Calculate weight for each entry
     const numberOfEntries = formattedMetrics.length;
@@ -159,7 +156,6 @@ async function createProject(userData) {
       };
     });
 
-    console.log("Formatted Metrics:", formattedMetrics);
 
     // Calculate weight for each entry
     const numberOfEntries = formattedMetrics.length;
@@ -233,9 +229,6 @@ const removeMetricFromProject = async (projectId, metricId) => {
 
     // Check if the metric exists in the metric_id array
     const metricArray = project.metric_id;
-    // console.log("kajallllll",metricArray.includes(metricId));
-
-
     const metricIdInt = parseInt(metricId, 10); // Ensure metricId is an integer
 
 
@@ -416,9 +409,6 @@ const checkProjectNameAvailability = async (project_name) => {
 //       }
 //     });
 
-//     console.log("userAnalytics", userAnalyticsData)
-
-
 
 //     // Extract metric_ids, platform_ids, and section_ids
 //     const metricIds = [...new Set(userAnalyticsData.map(ua => ua.metric_id).filter(id => id != null))];
@@ -434,8 +424,6 @@ const checkProjectNameAvailability = async (project_name) => {
 //       }
 //     });
 
-//     console.log(metricsData, 'metricsData')
-
 //     // Fetch platforms
 //     const platforms = await platform.findAll({
 //       where: {
@@ -444,8 +432,6 @@ const checkProjectNameAvailability = async (project_name) => {
 //         }
 //       }
 //     });
-
-//     console.log(platforms, 'platforms')
 
 
 //     // Fetch sections
@@ -456,8 +442,6 @@ const checkProjectNameAvailability = async (project_name) => {
 //         }
 //       }
 //     });
-
-//     console.log(sectionData, 'sectionData')
 
 
 //     // Fetch frequency, category, and brand names based on IDs
@@ -550,7 +534,6 @@ const getProjectById = async (projectId) => {
     if (!project) {
       throw new Error('Project not found');
     }
-    console.log('project---------------------', project)
     const userAnalyticsData = await userAnalytic.findAll({
       where: {
         project_id: projectId,
@@ -742,7 +725,6 @@ const createOrUpdateUrls = async (userId, tabName, urls) => {
       urls: userUrl.urls,
     };
   } catch (error) {
-    console.error('Error in createOrUpdateUrls service:', error);
     throw new Error('Error creating or updating URLs');
   }
 };
@@ -762,13 +744,11 @@ const getUrlsByUserId = async (userId) => {
       urls: userUrl.urls,
     };
   } catch (error) {
-    console.error('Error in getUrlsByUserId service:', error);
     throw new Error('Error fetching URLs');
   }
 };
 
 const saveMetrics = async (data) => {
-  console.log(data, "choceed data");
 
   try {
     const newMetrics = await projectBenchmark.bulkCreate(data);
@@ -787,7 +767,6 @@ const saveMetrics = async (data) => {
     }
     return newMetrics;
   } catch (error) {
-    console.error('Error in metrics service:', error);
     throw new Error(error);
   }
 }
@@ -812,7 +791,6 @@ const getProjectByIds = async (user_id,frequency_id, category_ids) => {
 
     return projects;
   } catch (error) {
-    console.error("Error fetching projects:", error);
     throw new Error("Error fetching projects");
   }
 };
@@ -830,7 +808,7 @@ const getDateRangeByUserId = async(user_id, frequency_id) => {
   )
 }
 
-const createUserProjectDQScore =async (dqScoreArray) => {
+const createUserProjectDQScore = async (dqScoreArray) => {
   const scoreDataArray = dqScoreArray.map(score => ({
       user_id: score.user_id,
       project_id: score.project_id,
@@ -859,6 +837,62 @@ const createUserProjectDQScore =async (dqScoreArray) => {
   }
 };
 
+const saveGroupMetric = async({ name, project_id, metric_ids }) => {
+  try {
+    const newMetricGroup = await metricGroup.create({
+      name,
+      project_id,
+      metric_ids
+    });
+
+    return newMetricGroup;
+  } catch (error) {
+    console.log(error);
+    
+    throw new Error('Error saving Metric Group');
+  }
+}
+
+const getGroupMetrics = async (projectId) => {
+  try {
+    const metricGroups = await metricGroup.findAll({
+      where: { project_id: projectId },
+    });
+
+    return metricGroups;
+  } catch (error) {
+    throw new Error('Error fetching Metric Groups');
+  }
+};
+
+const saveGroupMetricTheme = async ({ name, project_id, metric_ids, metric_group_ids }) => {
+  try {
+    const newMetricGroup = await superThemeMetricGroup.create({
+      name,
+      project_id,
+      metric_ids,
+      metric_group_ids
+    });
+
+    return newMetricGroup;
+  } catch (error) {
+    throw new Error('Error saving Metric Group: ' + error.message);
+  }
+};
+
+const getMetricGroupsByProjectId = async (project_id) => {
+  try {
+    // Fetch metric groups by project_id
+    const metricGroups = await superThemeMetricGroup.findAll({
+      where: { project_id }
+    });
+
+    return metricGroups;
+  } catch (error) {
+    throw new Error('Error fetching Metric Groups: ' + error.message);
+  }
+};
+
 
 
 module.exports = {
@@ -873,5 +907,9 @@ module.exports = {
   getProjectByIds,
   updateProject,
   deleteProject,
-  removeMetricFromProject
+  removeMetricFromProject,
+  saveGroupMetric,
+  getGroupMetrics,
+  saveGroupMetricTheme,
+  getMetricGroupsByProjectId
 };

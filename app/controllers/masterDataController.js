@@ -108,9 +108,10 @@ const getBrandsByCategoryIdController = async (req, res) => {
 };
 
 const getPlatformsBySectionIdController = async (req, res) => {
-  const { section_id } = req.params;
+  const { section_ids } = req.body;
+  console.log(req.body, 'section_ids')
   try {
-    const response = await getPlatformsBySectionId(section_id);
+    const response = await getPlatformsBySectionId(section_ids);
     const successResponse = createSuccessResponse(
       200,
       "Platforms found successfully",
@@ -118,6 +119,7 @@ const getPlatformsBySectionIdController = async (req, res) => {
     );
     return res.status(200).json(successResponse);
   } catch (error) {
+    console.log(error, "laeda error")
     if (error instanceof ValidationError) {
       const errorResponse = createErrorResponse(400, error.code, error.message);
       return res.status(400).json(errorResponse);
@@ -130,6 +132,7 @@ const getPlatformsBySectionIdController = async (req, res) => {
     return res.status(500).json(errorResponse);
   }
 };
+
 const getAllBenchmarkController = async (req, res) => {
   try {
     const response = await getAllBenchmark();

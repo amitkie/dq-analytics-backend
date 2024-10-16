@@ -1541,9 +1541,8 @@ const insertData = async () => {
     ]   
     await Metrics.bulkCreate(metrics, { ignoreDuplicates: true });
 
-    console.log("Data inserted successfully.");
+    // console.log("Data inserted successfully.");
   } catch (error) {
-    console.error("Error inserting data:", error);
   } finally {
     await sequelize.close(); // Close the connection to the database
   }
