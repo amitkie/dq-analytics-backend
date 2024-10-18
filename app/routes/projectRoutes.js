@@ -15,7 +15,8 @@ const {
     createMetricGroup,
     getGroupMetrics,
     createMetricThemeGroup,
-    getMetricThemeGroups
+    getMetricThemeGroups,
+    getProjectBenchmarks
 } = require('../controllers/projectController');
 const router = express.Router();
 
@@ -38,6 +39,8 @@ router.get('/metric-groups/:projectId', getGroupMetrics);
 router.post('/metric-theme-groups', createMetricThemeGroup);
 router.get('/metric-theme-groups/:projectId', getMetricThemeGroups);
 
+//graphical view
+router.get('/get-weights-by-project/:projectId', getProjectBenchmarks)
 
 
 

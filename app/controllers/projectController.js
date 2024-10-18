@@ -299,7 +299,7 @@ const createMetricThemeGroup = async (req, res) => {
     const { name, project_id, metric_ids, metric_group_ids } = req.body;
 
     // Validate input fields
-    if (!name || !project_id || !Array.isArray(metric_ids) || metric_ids.length < 1 || metric_group_ids.length < 1) {
+    if (!name || !project_id || !Array.isArray(metric_ids) || metric_ids.length < 1) {
       return res.status(400).json({
         message: 'Invalid input. Please provide name, project_id, and metric_ids (array of at least two metrics).'
       });
@@ -365,6 +365,26 @@ const getGroupMetrics = async (req, res) => {
   }
 };
 
+const getProjectBenchmarks = async (req, res) => {
+  const { projectId } = req.params; // Get projectId from request parameters
+
+  try {
+    // Call the service layer to get benchmarks
+    const benchmarks = await projectService.getProjectBenchmarks(projectId);
+
+    // If no benchmarks are found, return 404 response
+    if (!benchmarks) {
+      return res.status(404).json({ message: 'No benchmarks found for this project' });
+    }
+
+    // Return a successful response with the formatted benchmarks data
+    return res.status(200).json(benchmarks);
+  } catch (error) {
+    console.error('Error in ProjectBenchmarksController:', error);
+    return res.status(500).json({ message: 'An error occurred while fetching benchmarks' });
+  }
+};
+
 
 module.exports = {
   getProject,
@@ -382,5 +402,6 @@ module.exports = {
   createMetricGroup,
   getGroupMetrics,
   createMetricThemeGroup,
-  getMetricThemeGroups
+  getMetricThemeGroups,
+  getProjectBenchmarks
 };
