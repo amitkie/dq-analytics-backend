@@ -16,7 +16,8 @@ const {
     getGroupMetrics,
     createMetricThemeGroup,
     getMetricThemeGroups,
-    getProjectBenchmarks
+    getProjectBenchmarks,
+    getProjectByDateRangeAndUserIdController
 } = require('../controllers/projectController');
 const router = express.Router();
 
@@ -27,6 +28,7 @@ router.delete('/projects/:projectId', deleteProject);
 router.get('/check-project-name', checkProjectName);
 router.get('/get-project', getProjectByIdController);
 router.get('/get-project-by-user', getProjectByUserIdController);
+router.post('/get-project-by-date-range-for-user', getProjectByDateRangeAndUserIdController);
 router.post('/save-metrics', saveMetrics);
 router.delete('/remove-metric/:projectId/metrics/:metricId', removeMetricFromProject);
 router.post('/create-url', createUrl);

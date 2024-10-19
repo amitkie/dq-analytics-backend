@@ -1,5 +1,8 @@
 const { users,metricGroup, userProjects, metrics, platform, sections, frequencies, categories, brands, userUrls, userAnalytic, projectBenchmark, userProjectDQScore, superThemeMetricGroup } = require('../models');
 const { Op, Sequelize } = require('sequelize');
+const moment = require("moment"); 
+const { getMonthNumberFromString } = require('../utils/dateHandler');
+getMonthNumberFromString
 
 
 async function createProject(userData) {
@@ -448,6 +451,65 @@ const getProjectByUserId = async (user_id) => {
   }
 }
 
+const getProjectByDateRangeAndUserId = async (user_id, filter) => {
+  try {
+    const user = await users.findOne({ where: { id: user_id } });
+
+    if (!user) {
+      throw new Error("User not Found");
+    }
+
+    let startDate, endDate;
+
+    if (filter && filter.value) {
+      if (filter.type === "Monthly") {
+        const monthNumber = getMonthNumberFromString(filter.value);
+
+        if (monthNumber === -1) {
+          throw new Error("Invalid month string");
+        }
+
+        startDate = moment().month(monthNumber).startOf("month").format('YYYY-MM-DD');
+        endDate = moment().month(monthNumber).endOf("month").format('YYYY-MM-DD');
+      } else if (filter.type === "Quarterly") {
+        const quarterMapping = {
+          "JFM": [0, 2],
+          "AMJ": [3, 5],
+          "JAS": [6, 8],
+          "OND": [9, 11],
+        };
+        const [startMonth, endMonth] = quarterMapping[filter.value];
+        startDate = moment().month(startMonth).startOf("month").format('YYYY-MM-DD');
+        endDate = moment().month(endMonth).endOf("month").format('YYYY-MM-DD');
+      }
+    } else {
+      throw new Error("Invalid filter or missing filter value.");
+    }
+
+    let projectData = await userProjects.findAll({
+      where: {
+        user_id: user_id,
+        [Op.or]: [
+          {
+            start_date: { [Op.between]: [startDate, endDate] },
+          },
+          {
+            end_date: { [Op.between]: [startDate, endDate] },
+          },
+        ],
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    return projectData;
+  } catch (error) {
+    console.log(error, "service error");
+    throw new Error(error.message);
+  }
+};
+
+
+
 const createOrUpdateUrls = async (userId, tabName, urls) => {
   try {
     const [userUrl] = await userUrls.findOrCreate({
@@ -579,6 +641,18 @@ const createUserProjectDQScore = async (dqScoreArray) => {
 
 const saveGroupMetric = async({ name, project_id, metric_ids }) => {
   try {
+    const existingMetricGroup = await metricGroup.findOne({
+      where: {
+        project_id,
+        metric_ids
+      }
+    });
+
+    if (existingMetricGroup) {
+      throw new Error('Metric group with the same project and metric IDs already exists');
+    }
+
+
     const newMetricGroup = await metricGroup.create({
       name,
       project_id,
@@ -607,6 +681,17 @@ const getGroupMetrics = async (projectId) => {
 
 const saveGroupMetricTheme = async ({ name, project_id, metric_ids, metric_group_ids }) => {
   try {
+    const existingMetricGroup = await superThemeMetricGroup.findOne({
+      where: {
+        project_id,
+        metric_ids,          
+        metric_group_ids    
+      }
+    });
+
+    if (existingMetricGroup) {
+      throw new Error('A metric group with the same project, metric IDs, and metric group IDs already exists');
+    }
     const newMetricGroup = await superThemeMetricGroup.create({
       name,
       project_id,
@@ -620,18 +705,52 @@ const saveGroupMetricTheme = async ({ name, project_id, metric_ids, metric_group
   }
 };
 
+
 const getMetricGroupsByProjectId = async (project_id) => {
   try {
-    // Fetch metric groups by project_id
     const metricGroups = await superThemeMetricGroup.findAll({
       where: { project_id }
     });
 
-    return metricGroups;
+    const enrichedMetricGroups = await Promise.all(
+      metricGroups.map(async (group) => {
+        const metricDetails = await metrics.findAll({
+          where: {
+            id: group.metric_ids
+          },
+          attributes: ['id', 'name']
+        });
+
+        const metricGroupDetails = await metricGroup.findAll({
+          where: {
+            id: group.metric_group_ids
+          },
+          attributes: ['id', 'name'] 
+        });
+
+        // Return the enriched group with arrays of objects for metric_ids and metric_group_ids
+        return {
+          ...group.toJSON(), // Convert Sequelize instance to plain object
+          metric_ids: metricDetails.map(metric => ({
+            id: metric.id,
+            name: metric.name
+          })),
+          metric_group_ids: metricGroupDetails.map(mg => ({
+            id: mg.id,
+            name: mg.name
+          }))
+        };
+      })
+    );
+
+    return enrichedMetricGroups;
   } catch (error) {
+    console.log(error, "Error fetching metric groups");
     throw new Error('Error fetching Metric Groups: ' + error.message);
   }
 };
+
+
 const getProjectBenchmarks = async (projectId) => {
   try {
     // Fetch project benchmarks for the specified projectId
@@ -715,5 +834,6 @@ module.exports = {
   getGroupMetrics,
   saveGroupMetricTheme,
   getMetricGroupsByProjectId,
-  getProjectBenchmarks
+  getProjectBenchmarks,
+  getProjectByDateRangeAndUserId
 };

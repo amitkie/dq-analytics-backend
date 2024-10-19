@@ -140,6 +140,23 @@ const getProjectByUserIdController = async (req, res) => {
   }
 };
 
+const getProjectByDateRangeAndUserIdController = async (req,res) => {
+  const {filter, user_id} = req.body;
+  console.log(filter, user_id)
+  try {
+    const projects = await projectService.getProjectByDateRangeAndUserId(user_id, filter);
+    return res.status(200).json({ projects });
+
+  } catch (error) {
+    console.log("errrorororororororoororooror", error)
+    if (error.message === 'Project not found') {
+      return res.status(404).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+  }
+
 const saveMetrics = async (req, res) => {
   try {
     // const { project_id, isOverall, isCategory, metrics, weights, benchmarks } = req.body;
@@ -322,16 +339,17 @@ const createMetricThemeGroup = async (req, res) => {
 };
 
 const getMetricThemeGroups = async (req, res) => {
+  console.log(req.params, "params")
   try {
-    const { project_id } = req.params;
+    const { projectId } = req.params;
 
+  const metricGroups = await projectService.getMetricGroupsByProjectId(projectId);
+  console.log(metricGroups, "yahah abhi")
+  return res.status(200).json({
+    message: 'Metric Groups fetched successfully',
+    data: metricGroups
+  });
     // Call the service to fetch metric groups by project ID
-    const metricGroups = await projectService.getMetricGroupsByProjectId(project_id);
-
-    return res.status(200).json({
-      message: 'Metric Groups fetched successfully',
-      data: metricGroups
-    });
   } catch (error) {
     return res.status(500).json({
       message: 'Error fetching Metric Groups',
@@ -403,5 +421,6 @@ module.exports = {
   getGroupMetrics,
   createMetricThemeGroup,
   getMetricThemeGroups,
-  getProjectBenchmarks
+  getProjectBenchmarks,
+  getProjectByDateRangeAndUserIdController
 };
