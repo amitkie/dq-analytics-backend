@@ -16,7 +16,7 @@ const app = express();
 
 const corsOptions = {
   origin: ['https://m594bmgj-3000.inc1.devtunnels.ms/', 'http://localhost:3000', 'http://localhost:3000/', 'https://m594bmgj-8080.inc1.devtunnels.ms/', 'https://m594bmgj-8080.inc1.devtunnels.ms/api/v1/login'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['*'],
   allowCredentials:true,
 };
