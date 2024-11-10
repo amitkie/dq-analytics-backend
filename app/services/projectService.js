@@ -190,8 +190,49 @@ async function updateProject(projectId, projectData) {
       throw new Error("Project not found");
     }
 
-    // Update the project with new data
-    await project.update(projectData);
+    // If the project name is provided, update it
+    if (projectData.project_name) {
+      project.project_name = projectData.project_name;
+    }
+
+    // If metric_ids are provided, append them to existing ones
+    if (projectData.metric_id && Array.isArray(projectData.metric_id)) {
+      const existingMetrics = project.metric_id || [];
+      const updatedMetrics = [...new Set([...existingMetrics, ...projectData.metric_id])];  // Append new metrics without duplicates
+      project.metric_id = updatedMetrics;
+    }
+
+    // If other fields are provided in the project data, update them
+    if (projectData.is_benchmark_saved !== undefined) {
+      project.is_benchmark_saved = projectData.is_benchmark_saved;
+    }
+
+    if (projectData.file_url) {
+      project.file_url = projectData.file_url;
+    }
+
+    if (projectData.brand_id) {
+      project.brand_id = projectData.brand_id;
+    }
+
+    if (projectData.category_id) {
+      project.category_id = projectData.category_id;
+    }
+
+    if (projectData.frequency_id) {
+      project.frequency_id = projectData.frequency_id;
+    }
+
+    if (projectData.start_date) {
+      project.start_date = projectData.start_date;
+    }
+
+    if (projectData.end_date) {
+      project.end_date = projectData.end_date;
+    }
+
+    // Update the project with the new data
+    await project.save();  // Save the changes to the project
 
     // Return the updated project details
     return project;
@@ -199,6 +240,7 @@ async function updateProject(projectId, projectData) {
     throw new Error(`Error updating project: ${error.message}`);
   }
 }
+
 
 async function deleteProject(projectId) {
   try {
@@ -668,7 +710,9 @@ const saveGroupMetric = async({ name, project_id, metric_ids }) => {
 }
 
 const deleteGroupMetricTheme = async (superThemeMetricGroupId, project_id) => {
+  console.log('----------------------superThemeMetricGroupId',superThemeMetricGroupId, project_id )
   try {
+    // Find the SuperThemeMetricGroup by ID and project_id
     const superThemeMetricGroupRecord = await superThemeMetricGroup.findOne({
       where: {
         id: superThemeMetricGroupId,
@@ -676,27 +720,32 @@ const deleteGroupMetricTheme = async (superThemeMetricGroupId, project_id) => {
       }
     });
 
+    // If no record found, throw an error
     if (!superThemeMetricGroupRecord) {
       throw new Error('SuperThemeMetricGroup record not found');
     }
 
-    const { metric_ids } = superThemeMetricGroupRecord;
+    // Extract associated metric_ids from the record
+    const { metric_ids, metric_group_ids } = superThemeMetricGroupRecord;
 
+    // Delete associated MetricGroups based on the metric_ids
     await metricGroup.destroy({
       where: {
         project_id,
-        metric_ids
+        id: metric_group_ids // Assuming metric_group_ids field holds the IDs of related metric groups
       }
     });
 
+    // Now delete the SuperThemeMetricGroup record itself
     await superThemeMetricGroupRecord.destroy();
 
+    // Return success message
     return { message: 'Successfully deleted SuperThemeMetricGroup and associated MetricGroups' };
   } catch (error) {
+    // Return error message if something fails
     throw new Error('Error deleting Metric Group and associated records: ' + error.message);
   }
 };
-
 
 
 const getGroupMetrics = async (projectId) => {

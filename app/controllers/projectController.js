@@ -26,6 +26,7 @@ const createProject = async (req, res) => {
     return res.status(500).json(errorResponse);
   }
 };
+
 const updateProject = async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -357,6 +358,7 @@ const getMetricThemeGroups = async (req, res) => {
     });
   }
 };
+
 const removeSuperThemeGroup = async (req, res) => {
   const { id } = req.params;
   const { project_id } = req.query;
