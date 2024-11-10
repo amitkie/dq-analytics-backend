@@ -357,6 +357,22 @@ const getMetricThemeGroups = async (req, res) => {
     });
   }
 };
+const removeSuperThemeGroup = async (req, res) => {
+  const { id } = req.params;
+  const { project_id } = req.query;
+  try {
+  const result = await projectService.deleteGroupMetricTheme(id, project_id);
+  return res.status(200).json({
+    message: 'Deleted Super Theme Group',
+    data: result
+  });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error Deleting Super Theme Group',
+      error: error.message
+    });
+  }
+};
 
 const getGroupMetrics = async (req, res) => {
   const { projectId } = req.params;
@@ -382,6 +398,7 @@ const getGroupMetrics = async (req, res) => {
     });
   }
 };
+
 
 const getProjectBenchmarks = async (req, res) => {
   const { projectId } = req.params; // Get projectId from request parameters
@@ -422,5 +439,6 @@ module.exports = {
   createMetricThemeGroup,
   getMetricThemeGroups,
   getProjectBenchmarks,
-  getProjectByDateRangeAndUserIdController
+  getProjectByDateRangeAndUserIdController,
+  removeSuperThemeGroup
 };

@@ -17,13 +17,14 @@ const {
     createMetricThemeGroup,
     getMetricThemeGroups,
     getProjectBenchmarks,
-    getProjectByDateRangeAndUserIdController
+    getProjectByDateRangeAndUserIdController,
+    removeSuperThemeGroup
 } = require('../controllers/projectController');
 const router = express.Router();
 
 
 router.post('/create-project', createProject);
-router.patch('/projects/:projectId', updateProject);
+router.put('/projects/:projectId', updateProject);
 router.delete('/projects/:projectId', deleteProject);
 router.get('/check-project-name', checkProjectName);
 router.get('/get-project', getProjectByIdController);
@@ -40,6 +41,7 @@ router.post('/metric-groups', createMetricGroup);
 router.get('/metric-groups/:projectId', getGroupMetrics);
 router.post('/metric-theme-groups', createMetricThemeGroup);
 router.get('/metric-theme-groups/:projectId', getMetricThemeGroups);
+router.delete('/metric-theme-groups/:id', removeSuperThemeGroup);
 
 //graphical view
 router.get('/get-weights-by-project/:projectId', getProjectBenchmarks)

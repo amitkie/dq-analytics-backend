@@ -667,6 +667,38 @@ const saveGroupMetric = async({ name, project_id, metric_ids }) => {
   }
 }
 
+const deleteGroupMetricTheme = async (superThemeMetricGroupId, project_id) => {
+  try {
+    const superThemeMetricGroupRecord = await superThemeMetricGroup.findOne({
+      where: {
+        id: superThemeMetricGroupId,
+        project_id
+      }
+    });
+
+    if (!superThemeMetricGroupRecord) {
+      throw new Error('SuperThemeMetricGroup record not found');
+    }
+
+    const { metric_ids } = superThemeMetricGroupRecord;
+
+    await metricGroup.destroy({
+      where: {
+        project_id,
+        metric_ids
+      }
+    });
+
+    await superThemeMetricGroupRecord.destroy();
+
+    return { message: 'Successfully deleted SuperThemeMetricGroup and associated MetricGroups' };
+  } catch (error) {
+    throw new Error('Error deleting Metric Group and associated records: ' + error.message);
+  }
+};
+
+
+
 const getGroupMetrics = async (projectId) => {
   try {
     const metricGroups = await metricGroup.findAll({
@@ -835,5 +867,6 @@ module.exports = {
   saveGroupMetricTheme,
   getMetricGroupsByProjectId,
   getProjectBenchmarks,
-  getProjectByDateRangeAndUserId
+  getProjectByDateRangeAndUserId,
+  deleteGroupMetricTheme
 };
