@@ -10,35 +10,13 @@ const projectRoutes = require('./app/routes/projectRoutes');
 
 const app = express();
 
-// var corsOptions = {
-//   origin: '*'
-// };
-
 const corsOptions = {
   origin: ['https://m594bmgj-3000.inc1.devtunnels.ms/', 'http://localhost:3000', 'http://localhost:3000/', 'https://m594bmgj-8080.inc1.devtunnels.ms/', 'https://m594bmgj-8080.inc1.devtunnels.ms/api/v1/login'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['*'],
   allowCredentials:true,
 };
-// const allowedOrigins = ['https://m594bmgj-3000.inc1.devtunnels.ms/', 'http://localhost:3000'];
 
-// app.use(cors({
-//   origin: (origin,callback) => {
-//     if(allowedOrigins.includes(origin) || !origin){
-//       callback(null, true);
-//     }else{
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   methods: ['POST', 'GET', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-//   credentials:true
-// }))
-
-
-
-// app.use(cors(corsOptions));
-
-// app.options('*', cors(corsOptions));
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://m594bmgj-3000.inc1.devtunnels.ms');
@@ -50,7 +28,7 @@ return res.sendStatus(200);
   }
   next();
 });
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1', authRoutes);
 app.use('/api/v1/users', userRoutes);
@@ -72,7 +50,6 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to your application." });
 });
 
-// Routes for authentication
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
