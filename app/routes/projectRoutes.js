@@ -18,13 +18,15 @@ const {
     getMetricThemeGroups,
     getProjectBenchmarks,
     getProjectByDateRangeAndUserIdController,
-    removeSuperThemeGroup
+    removeSuperThemeGroup,
+    toggleFavorite
 } = require('../controllers/projectController');
 const router = express.Router();
 
 
 router.post('/create-project', createProject);
 router.put('/projects/:projectId', updateProject);
+router.put('/projects/:id/favorite', toggleFavorite);
 router.delete('/projects/:projectId', deleteProject);
 router.get('/check-project-name', checkProjectName);
 router.get('/get-project', getProjectByIdController);

@@ -241,6 +241,24 @@ async function updateProject(projectId, projectData) {
   }
 }
 
+const toggleFavorite = async (id, is_favorite) => {
+  try {
+    const project = await userProjects.findOne({ where: { id } });
+
+    if (!project) {
+      return null;
+    }
+
+    project.is_favorite = is_favorite;
+    await project.save(); 
+
+    return project; 
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error updating favorite status');
+  }
+};
+
 
 async function deleteProject(projectId) {
   try {
@@ -917,5 +935,6 @@ module.exports = {
   getMetricGroupsByProjectId,
   getProjectBenchmarks,
   getProjectByDateRangeAndUserId,
-  deleteGroupMetricTheme
+  deleteGroupMetricTheme,
+  toggleFavorite
 };

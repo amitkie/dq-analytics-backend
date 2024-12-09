@@ -9,6 +9,11 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         defaultValue: false 
       },
+      is_favorite: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false 
+      },
       file_url:{
         type: Sequelize.STRING
       },

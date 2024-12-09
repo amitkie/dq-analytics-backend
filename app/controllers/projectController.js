@@ -53,6 +53,27 @@ const updateProject = async (req, res) => {
   }
 };
 
+const toggleFavorite = async (req, res) => {
+  const { id } = req.params;
+  const { is_favorite } = req.body;
+
+  try {
+    const updatedProject = await projectService.toggleFavorite(id, is_favorite);
+
+    if (!updatedProject) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    return res.status(200).json({
+      message: 'Project favorite status updated successfully',
+      project: updatedProject,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 const deleteProject = async (req, res) => {
   try {
@@ -442,5 +463,6 @@ module.exports = {
   getMetricThemeGroups,
   getProjectBenchmarks,
   getProjectByDateRangeAndUserIdController,
-  removeSuperThemeGroup
+  removeSuperThemeGroup,
+  toggleFavorite
 };
