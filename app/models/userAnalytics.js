@@ -33,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
           }
       },
       weights:{
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
         allowNull: true,
       }
 
