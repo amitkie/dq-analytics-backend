@@ -3,7 +3,14 @@ import psycopg2
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from io import BytesIO
-
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import pandas as pd
+import numpy as np
+import psycopg2
+from typing import List
+from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI(debug=True)
 # Database connection parameters
 DB_PARAMS = {
     'host': 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com',
@@ -47,7 +54,7 @@ async def retrieve_brand_images(brand_name: str):
         cur = conn.cursor()
 
         # Query to fetch brand images based on brand name
-        cur.execute("SELECT image FROM dq.master_table_brand_images WHERE brand = %s", (brand_name,))
+        cur.execute("SELECT image FROM dq.master_table_category_brand WHERE brand = %s", (brand_name,))
         rows = cur.fetchall()
 
         if not rows:
@@ -69,4 +76,7 @@ async def retrieve_brand_images(brand_name: str):
             conn.close()
 
 #GET 
-# http://127.0.0.1:8013/brand-images/Livon
+# http://127.0.0.1:8019/brand-images/Livon
+
+
+

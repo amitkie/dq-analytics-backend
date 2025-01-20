@@ -79,4 +79,42 @@ const getUserInfo = async (req,res) => {
         }
 }
 
-module.exports = {createUser, loginUser, getUserAndPaymentInfo, getUserInfo};
+const sendFeedback = async (req, res) => {
+    try {
+        const { firstName, lastName, email, requestType, comments } = req.body;
+
+        // Validate input
+        if (!firstName || !lastName || !email || !requestType || !comments) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+
+        // Call the service
+        await authService.sendFeedbackEmail({ firstName, lastName, email, requestType, comments });
+
+        res.status(200).json({ message: "Feedback sent successfully!" });
+    } catch (error) {
+        console.error("Error in sendFeedback:", error);
+        res.status(500).json({ message: "Failed to send feedback." });
+    }
+};
+
+const demoScheduler = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Validate input
+        if ( !email ) {
+            return res.status(400).json({ message: "Email field is required." });
+        }
+
+        // Call the service
+        await authService.demoScheduler({  email});
+
+        res.status(200).json({ message: "Feedback sent successfully!" });
+    } catch (error) {
+        console.error("Error in sendFeedback:", error);
+        res.status(500).json({ message: "Failed to send feedback." });
+    }
+};
+
+module.exports = {createUser, loginUser, getUserAndPaymentInfo, getUserInfo, sendFeedback, demoScheduler};
