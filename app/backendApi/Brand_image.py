@@ -10,6 +10,8 @@ import numpy as np
 import psycopg2
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
+from app.backendApi.auth_middleware import BearerTokenMiddleware
+
 app = FastAPI(debug=True)
 # Database connection parameters
 DB_PARAMS = {
@@ -39,6 +41,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(BearerTokenMiddleware)
 
 def get_db_connection():
     """Establish a database connection."""
