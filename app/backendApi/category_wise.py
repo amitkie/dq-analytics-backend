@@ -558,6 +558,7 @@ from pydantic import BaseModel
 from typing import Optional, Union, List
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 from multiprocessing import Pool, cpu_count  # Import necessary modules for multiprocessing
 app = FastAPI()
@@ -578,6 +579,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(BearerTokenMiddleware)
 
 # Database connection parameters
 DB_PARAMS = {

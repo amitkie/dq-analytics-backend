@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 import psycopg2
 from psycopg2 import sql
 from typing import Dict
+from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +23,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(BearerTokenMiddleware)
 
 # Database connection parameters
 DB_PARAMS = {

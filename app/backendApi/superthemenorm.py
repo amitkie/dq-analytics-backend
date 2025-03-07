@@ -5,6 +5,7 @@ import psycopg2
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import requests
+from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 # Database connection parameters
 DB_PARAMS = {
@@ -33,6 +34,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(BearerTokenMiddleware)
 
 class RequestPayload(BaseModel):
     project_ids: List[int]

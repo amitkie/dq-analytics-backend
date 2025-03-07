@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import psycopg2
 from typing import List
+from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
@@ -22,6 +23,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(BearerTokenMiddleware)
 
 # Database connection parameters
 DB_PARAMS = {

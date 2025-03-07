@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Optional, Union, List
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 app = FastAPI()
 
@@ -41,6 +42,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(BearerTokenMiddleware)
+
 # Database connection parameters
 DB_PARAMS = {
     'host': 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com',
