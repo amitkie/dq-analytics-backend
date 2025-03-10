@@ -5,6 +5,7 @@ import psycopg2
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import numpy as np
+from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 # Database connection parameters
 DB_PARAMS = {
@@ -23,6 +24,8 @@ app = FastAPI()
 # CORS Middleware for frontend access
 origins = ["http://localhost", "http://localhost:3000", "https://example.com", "*"]
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+app.add_middleware(BearerTokenMiddleware)
 
 # Request model for accepting project IDs
 class RequestPayload(BaseModel):

@@ -6,6 +6,8 @@ from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import json
+from app.backendApi.auth_middleware import BearerTokenMiddleware
+
 app = FastAPI()
 
 origins = [
@@ -22,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(BearerTokenMiddleware)
 
 # Database connection parameters
 DB_PARAMS = {
