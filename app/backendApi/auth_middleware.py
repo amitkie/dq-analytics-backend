@@ -24,7 +24,10 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         try:
             response = requests.post(
                 os.getenv("ONBOARDING_PORTAL_SERVER_URL") + '/auth/isLoggedIn',
-                headers={"Authorization": f"Bearer {token}"}
+                headers={"Authorization": f"Bearer {token}"},
+                json={
+                    "toolName": "DIGI-CADENCE"
+                }
             )
 
             if response.status_code != 200:
