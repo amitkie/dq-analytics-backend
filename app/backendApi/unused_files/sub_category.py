@@ -6,7 +6,7 @@ from psycopg2 import sql
 # FastAPI app instance
 # app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
-from app.backendApi.auth_middleware import BearerTokenMiddleware
+from app.backendApi.middlewares.auth_middleware import BearerTokenMiddleware
 
 app = FastAPI()
 

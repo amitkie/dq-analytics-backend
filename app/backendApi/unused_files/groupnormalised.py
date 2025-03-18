@@ -6,7 +6,7 @@ from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import json
-from app.backendApi.auth_middleware import BearerTokenMiddleware
+from app.backendApi.middlewares.auth_middleware import BearerTokenMiddleware
 
 app = FastAPI()
 

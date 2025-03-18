@@ -832,7 +832,7 @@ import numpy as np
 import psycopg2
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
-from app.backendApi.auth_middleware import BearerTokenMiddleware
+from app.backendApi.middlewares.auth_middleware import BearerTokenMiddleware
 
 app = FastAPI()
 

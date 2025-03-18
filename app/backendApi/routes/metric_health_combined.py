@@ -477,54 +477,16 @@ import pandas as pd
 import numpy as np
 import psycopg2
 from psycopg2 import sql
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Union, List
-import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text
-import urllib.parse
-app = FastAPI()
+from app.backendApi.config.db import DB_PARAMS
+from pathlib import Path
 
-# Add CORS middleware
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://example.com",
-    "*",
-    "(*)"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Database connection parameters
-DB_PARAMS = {
-    'host': 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com',
-    'port': '5434',
-    'dbname': 'KIESQUAREDE',
-    'user': 'KIESQUAREDE',
-    'password': 'KIESQUARE123'
-}
-DB_USER = 'KIESQUAREDE'
-DB_PASS = urllib.parse.quote_plus('KIESQUARE123')  # URL encode the password
-DB_HOST = 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com'
-DB_PORT = '5434'
-DB_NAME = 'KIESQUAREDE'
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+app = APIRouter()
 
 # Schema name
 SCHEMA_NAME = 'dq'
-
-
-
-
 
 
 SCHEMANAME = 'public'
@@ -743,8 +705,12 @@ def calculate_metric(df, metric, metric_dict):
         else:
             print(f"Warning: Complex calculation for {metric} not implemented. Returning sum.")
             return to_native(df[metric].sum() if metric in df.columns else np.nan)
-def load_metric_list(file_path=r'C:\Users\Administrator\Desktop\Git\dq-analytics-backend\app\backendApi\Metric_List.csv'):
+def load_metric_list(file_path=None):
     try:
+        if(file_path is None):
+            file_path=r'../files/Metric_List.csv'
+            base_dir = Path(__file__).resolve().parent
+            file_path = base_dir / file_path
         df = pd.read_csv(file_path)
         metric_dict = dict(zip(df['Metrics List'], df['Calculation Logic']))
         return metric_dict
@@ -1061,62 +1027,3 @@ def get_data(payload: RequestPayload):
 #     "start_date": "2024-01-01",
 #     "end_date": "2024-12-31"
 # }
-# Health check endpoint
-@app.get("/health")
-async def health_check():
-    """Health check endpoint to verify service status"""
-    try:
-        # Test database connection
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-        return {
-            "status": "healthy",
-            "timestamp": pd.Timestamp.now().isoformat(),
-            "database": "connected"
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Service unhealthy: {str(e)}"
-        )
-
-# Additional error handling middleware
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """Global exception handler for unhandled errors"""
-    error_message = str(exc)
-    return {
-        "error": "Internal Server Error",
-        "detail": error_message,
-        "path": request.url.path
-    }
-
-# Startup and shutdown events
-@app.on_event("startup")
-async def startup_event():
-    """Execute startup tasks"""
-    print("Starting up the application...")
-    try:
-        # Test database connection on startup
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-        print("Database connection successful")
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        raise e
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Execute shutdown tasks"""
-    print("Shutting down the application...")
-    engine.dispose()
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info",
-        reload=True  # Enable auto-reload during development
-    )

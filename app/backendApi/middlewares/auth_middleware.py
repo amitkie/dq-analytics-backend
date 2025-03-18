@@ -6,6 +6,10 @@ import os
 
 class BearerTokenMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Skip authentication for the health check endpoint
+        if request.url.path == "/health":
+            return await call_next(request)
+        
         # Check if the Authorization header is present
         if "Authorization" not in request.headers:
             return JSONResponse(status_code=401, content={"errorCode": 401, "statusCode": "UNAUTHORIZED", "message": "Token Missing"})

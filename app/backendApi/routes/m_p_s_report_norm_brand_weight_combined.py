@@ -1,39 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import pandas as pd
 import psycopg2
-from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-import requests
 import numpy as np
-
-# Database connection parameters
-DB_PARAMS = {
-    'host': 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com',
-    'port': '5434',
-    'dbname': 'KIESQUAREDE',
-    'user': 'KIESQUAREDE',
-    'password': 'KIESQUARE123'
-}
-
+from app.backendApi.config.db import DB_PARAMS
+from app.backendApi.routes.brand_sub_image_defination import get_competitors_for_project_get
 # Schema name
 SCHEMA_NAME = 'public'
 
-app = FastAPI()
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://example.com",
-    "*",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = APIRouter()
 
 # Request models
 class MetricReportPayload(BaseModel):
@@ -78,12 +54,9 @@ def load_user_projects(conn, project_id: int) -> pd.DataFrame:
         raise HTTPException(status_code=500, detail=f"Error querying the user projects table: {e}")
 
 # Brand info functions
-def get_brand_info(project_id: int, brandname: str):
-    url = f"https://m594bmgj-8018.inc1.devtunnels.ms/brands/{brandname}/project_id/{project_id}"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
+async def get_brand_info(project_id: int, brandname: str):
+    try:
+        data = await get_competitors_for_project_get(brand_name=brandname, project_id=project_id)
         combined_data = []
         
         main_brand_data = data['main_brand']
@@ -97,15 +70,15 @@ def get_brand_info(project_id: int, brandname: str):
             competitor['type'] = 'competitor'
             combined_data.append(competitor)
         return pd.DataFrame(combined_data)
-    else:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve brand info. Status code: {response.status_code}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve brand info. Status code: {str(e)}")
 
-def join_data(normalized_data: pd.DataFrame, project_ids: List[int], brandname: str) -> pd.DataFrame:
+async def join_data(normalized_data: pd.DataFrame, project_ids: List[int], brandname: str) -> pd.DataFrame:
     results = []
     
     for project_id in project_ids:
         try:
-            brand_info_df = get_brand_info(project_id, brandname)
+            brand_info_df = await get_brand_info(project_id, brandname)
             merged_data = normalized_data.merge(
                 brand_info_df,
                 left_on=['project_id', 'brandname'],

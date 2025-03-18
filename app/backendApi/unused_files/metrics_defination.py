@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 import psycopg2
 from psycopg2 import sql
 from typing import Dict
-from app.backendApi.auth_middleware import BearerTokenMiddleware
+from app.backendApi.middlewares.auth_middleware import BearerTokenMiddleware
 
 from fastapi.middleware.cors import CORSMiddleware
 

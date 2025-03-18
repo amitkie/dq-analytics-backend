@@ -1722,43 +1722,15 @@ import pandas as pd
 import numpy as np
 import psycopg2
 from psycopg2 import sql
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Union, List
-import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
-from app.backendApi.auth_middleware import BearerTokenMiddleware
 
 from multiprocessing import Pool, cpu_count  # Import necessary modules for multiprocessing
-app = FastAPI()
+from app.backendApi.config.db import DB_PARAMS
+from pathlib import Path
 
-# Add CORS middleware
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://example.com",
-    "*",
-    "(*)"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.add_middleware(BearerTokenMiddleware)
-
-# Database connection parameters
-DB_PARAMS = {
-    'host': 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com',
-    'port': '5434',
-    'dbname': 'KIESQUAREDE',
-    'user': 'KIESQUAREDE',
-    'password': 'KIESQUARE123'
-}
+app = APIRouter()
 
 # Schema name
 SCHEMA_NAME = 'dq'
@@ -1925,8 +1897,12 @@ def calculate_metric(df, metric, metric_dict):
             print(f"Warning: Complex calculation for {metric} not implemented. Returning sum.")
             return to_native(df[metric].sum() if metric in df.columns else np.nan)
 
-def load_metric_list(file_path=r'/Users/saptarshijana/Downloads/dq_api_backup/Metric_List.csv'):
+def load_metric_list(file_path=None):
     try:
+        if(file_path is None):
+            file_path=r'../files/dq_api_backup/Metric_List.csv'
+            base_dir = Path(__file__).resolve().parent
+            file_path = base_dir / file_path
         df = pd.read_csv(file_path)
         metric_dict = dict(zip(df['Metrics List'], df['Calculation Logic']))
         return metric_dict
@@ -2248,14 +2224,13 @@ class MetricRequest(BaseModel):
 
 
 
-from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, HTTPException
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    response = await call_next(request)
-    logger.info(f"{request.method} {request.url} - {response.status_code}")
-    return response
+# @app.middleware("http")
+# async def log_requests(request: Request, call_next):
+#     response = await call_next(request)
+#     logger.info(f"{request.method} {request.url} - {response.status_code}")
+#     return response
 
 import logging
 

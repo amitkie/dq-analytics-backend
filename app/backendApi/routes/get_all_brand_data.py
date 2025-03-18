@@ -123,43 +123,16 @@
 
 
 
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import pandas as pd
 import numpy as np
 import psycopg2
 from typing import List
-from fastapi.middleware.cors import CORSMiddleware
-from app.backendApi.auth_middleware import BearerTokenMiddleware
+from app.backendApi.config.db import DB_PARAMS
 
-app = FastAPI()
+app = APIRouter()
 
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://example.com",
-    "*",
-    "(*)"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.add_middleware(BearerTokenMiddleware)
-
-# Database connection parameters
-DB_PARAMS = {
-    'host': 'detool.cq7xabbes0x8.ap-south-1.rds.amazonaws.com',
-    'port': '5434',
-    'dbname': 'KIESQUAREDE',
-    'user': 'KIESQUAREDE',
-    'password': 'KIESQUARE123'
-}
 SCHEMA_NAME = 'public'
 
 class RequestPayload(BaseModel):
