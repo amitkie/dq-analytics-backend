@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.backendApi.routes.Brand_image import app as brand_image
+from app.backendApi.routes.Brand_image1 import app as brand_image
 from app.backendApi.auth_middleware import BearerTokenMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
