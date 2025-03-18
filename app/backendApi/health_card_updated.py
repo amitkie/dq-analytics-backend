@@ -971,7 +971,7 @@ def calculate_metric(df, metric, metric_dict):
             print(f"Warning: Complex calculation for {metric} not implemented. Returning sum.")
             return to_native(df[metric].sum() if metric in df.columns else np.nan)
 
-def load_metric_list(file_path=r'/Users/saptarshijana/Downloads/dq_api_backup/Metric_List.csv'):
+def load_metric_list(file_path=r'C:\Users\Administrator\Desktop\Git\dq-analytics-backend\app\backendApi\Metric_List.csv'):
     try:
         df = pd.read_csv(file_path)
         metric_dict = dict(zip(df['Metrics List'], df['Calculation Logic']))
