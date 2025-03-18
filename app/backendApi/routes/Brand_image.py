@@ -1,0 +1,52 @@
+
+import psycopg2
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+from fastapi import FastAPI, HTTPException, APIRouter
+from pydantic import BaseModel
+import pandas as pd
+import numpy as np
+import psycopg2
+from typing import List
+from fastapi.middleware.cors import CORSMiddleware
+from app.backendApi.auth_middleware import BearerTokenMiddleware
+from app.backendApi.config.db import conn
+
+app = APIRouter()
+
+@app.get("/brand-images/{brand_name}")
+async def retrieve_brand_images(brand_name: str):
+    """
+    Retrieve images for a specific brand from the database.
+    """
+    try:
+        cur = conn.cursor()
+
+        # Query to fetch brand images based on brand name
+        cur.execute("SELECT image FROM dq.master_table_category_brand WHERE brand = %s", (brand_name,))
+        rows = cur.fetchall()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="Brand not found or no images available.")
+
+        # Return the first image as a streaming response
+        image_bytes = rows[0][0]  # Get the first image byte data
+        image_stream = BytesIO(image_bytes)
+        return StreamingResponse(image_stream, media_type="image/jpeg")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        # Close the cursor and connection
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+#GET 
+# http://127.0.0.1:8019/brand-images/Livon
+
+
+
