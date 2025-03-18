@@ -1,0 +1,6 @@
+id,metric_ids,name,metricname,project_id,brandname,weight_sum,normalized_per_weight
+49,1,CTR-Theme,Average ratings,268,Beardo,13.0,70.0
+49,42,CTR-Theme,CTR-Metrics,268,Livon,26.0,80.0
+49,42,CTR-Theme,CTR-Metrics,268,Park Avenue,26.0,75.0
+49,42,CTR-Theme,CTR-Metrics,268,Pure Sense,26.0,80.0
+49,42,CTR-Theme,CTR-Metrics,268,Saffola Oil,26.0,75.0
