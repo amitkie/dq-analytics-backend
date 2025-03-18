@@ -23,7 +23,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
-    "https://example.com",
+    "https://m594bmgj-7033.inc1.devtunnels.ms",  # Add your forwarded URL
+    "https://*.devtunnels.ms",  # Allow all devtunnels subdomains
     "*",
 ]
 
