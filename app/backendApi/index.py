@@ -19,6 +19,7 @@ from app.backendApi.routes.metric_health_combined import app as metric_health_ro
 from app.backendApi.routes.multi import app as multi_routes
 from app.backendApi.routes.normalisation_api import app as normalisation_routes
 from app.backendApi.routes.supertheme_combined import app as supertheme_routes
+from app.backendApi.routes.user_details_greeting import app as user_details_greeting_routes
 
 app = FastAPI()
 
@@ -57,6 +58,7 @@ app.include_router(metric_health_routes)
 app.include_router(multi_routes)
 app.include_router(normalisation_routes)
 app.include_router(supertheme_routes)
+app.include_router(user_details_greeting_routes)
 
 # Health check endpoint
 @app.get("/health")
