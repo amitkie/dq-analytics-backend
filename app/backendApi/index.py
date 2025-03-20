@@ -6,6 +6,7 @@ from datetime import datetime
 from fastapi.responses import JSONResponse
 import psycopg2
 from psycopg2 import sql
+from dotenv import load_dotenv
 
 from app.backendApi.config.db import DB_PARAMS
 
@@ -20,6 +21,8 @@ from app.backendApi.routes.multi import app as multi_routes
 from app.backendApi.routes.normalisation_api import app as normalisation_routes
 from app.backendApi.routes.supertheme_combined import app as supertheme_routes
 from app.backendApi.routes.user_details_greeting import app as user_details_greeting_routes
+
+load_dotenv()
 
 app = FastAPI()
 

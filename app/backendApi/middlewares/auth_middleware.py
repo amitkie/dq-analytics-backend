@@ -10,12 +10,12 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         if request.url.path == "/health":
             return await call_next(request)
         
-        # Check if the Authorization header is present
-        if "Authorization" not in request.headers:
+        # Check if the authorization header is present
+        if "authorization" not in request.headers:
             return JSONResponse(status_code=401, content={"errorCode": 401, "statusCode": "UNAUTHORIZED", "message": "Token Missing"})
         
-        # Extract the token from the Authorization header
-        token_header = request.headers["Authorization"]
+        # Extract the token from the authorization header
+        token_header = request.headers["authorization"]
         
         # Check if the token starts with "Bearer "
         if not token_header.startswith("Bearer "):
@@ -28,7 +28,7 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
         try:
             response = requests.post(
                 os.getenv("ONBOARDING_PORTAL_SERVER_URL") + '/auth/isLoggedIn',
-                headers={"Authorization": f"Bearer {token}"},
+                headers={"authorization": f"Bearer {token}"},
                 json={
                     "toolName": "DIGI-CADENCE"
                 }
