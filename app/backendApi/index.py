@@ -30,26 +30,26 @@ app = FastAPI()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Add CORS middleware
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://example.com",
-    "https://m594bmgj-7033.inc1.devtunnels.ms",
-    "https://*.devtunnels.ms",
-    "*",
-    "(*)"
-]
+# Middlewares
+app.add_middleware(BearerTokenMiddleware)
 
+# Add CORS middleware at the last after adding all middlewares
+# origins = [
+#     "http://localhost",
+#     "http://localhost:3000",
+#     "https://example.com",
+#     "https://m594bmgj-7033.inc1.devtunnels.ms",
+#     "https://*.devtunnels.ms",
+#     "*",
+#     "(*)"
+# ]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.add_middleware(BearerTokenMiddleware)
 
 app.include_router(analytics_routes)
 app.include_router(brand_sub_image_routes)
