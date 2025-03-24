@@ -1,0 +1,126 @@
+﻿Metrics List,Calculation Logic
+% of new purchase rate,NTB Orders/purchases
+"(Paid)""",Average
+ACOS %,Spends/Sales
+acos__,Spends/Sales
+Add to Basket,Sum
+Add to cart,Sum
+add_to_basket,Sum
+add_to_cart,Sum
+Amazon Best seller rank,Average
+amazon_best_seller_rank,Average
+AOV,Spend/transactions
+aov,Spend/transactions
+ATC,Sum
+atc,Sum
+ATCR,ATC/Orders
+atcr,ATC/Orders
+Availability%,Average
+availability_,Average
+average ratings,Average
+Average ratings,Average
+average_ratings,Average
+average_ratings,Average
+Avg. Session Duration (mins),Average
+avg__session_duration__mins_,Average
+Cart to checkout,checkout initiated/add to cart
+Cart to Checkout %,Checkout/Add to cart
+Check out to Transaction %,Orders/checkout initiated
+Checkout,Sum
+checkout,Sum
+Click to cart %,add to cart/clicks
+Click to new purchase,NTB Orders/Clicks
+Clicks,Sum
+clicks,Sum
+content_score,Average
+Cost per new customer (CAC),NTB Orders/Spends
+Cost per order (new),NTB Orders/Spends
+Cost per transaction,transformation/spend
+CPC,Spends/Click
+CPM,(Spends/Impressions)*1000
+CTR,(Clicks/Impressions)
+Cumulative layout shift (CLS),Average
+cumulative_layout_shift__cls_,Average
+Display – Spends,Sum
+display___spends,Sum
+DPV,Sum
+dpv,Sum
+DPVR,DPV/Orders
+Engagement,Sum
+engagement,Sum
+Engagement %,Engagement/Followers
+First contentful paint (FCP) - seconds,Average
+First input delay (FID) - milli seconds,Average
+Frequency,Sum
+frequency,Sum
+Impressions,Sum
+impressions,Sum
+Largest contentful paint (LCP) - seconds,Average
+largest_contentful_paint__lcp____seconds,Average
+Load Time (seconds),Average
+load_time__seconds_,Average
+Mentions,Sum
+mentions,Sum
+Mobile page speed insights score,Average
+mobile_page_speed_insights_score,Average
+Net sentiment,Average
+net_sentiment,Average
+Net_sentiment_of_reviews,Average
+net_sentiment_of_reviews,Average
+order,Average
+Order ,Sum
+Order Conversion Rate,Purchases/Clicks
+Organic Rank,Average
+organic_rank,Average
+Overall conversion %,Transactions/Sessions
+Pages per sessions,Average
+pages_per_sessions,Average
+Performance (SEO optimer),Latest
+Product Views,Sum
+Product views per session,Session/Product views
+Product views to cart %,Add to cart/Product Views
+Purchases,Sum
+purchases,Sum
+Reach,Sum
+reach,Sum
+Repeat rate %,(1-customers acquired/transactions)
+repeat_rate__,Sum
+Reviews,Sum
+reviews,Sum
+Sales value,Sum
+sales_value,Sum
+Search - home page banners,Sum
+search___home_page_banners,Sum
+search___spends,Sum
+search___spends,Sum
+"Search visibility share 
+(Organic)",Average
+"Search visibility share 
+(Paid)",Average
+search_spends,Sum
+search_visibility_share___paid_,Average
+search_visibility_share___organic_,Average
+SEO (SEO optimer),Latest
+Sessions,Sum
+sessions,Sum
+Sessions to product views %,Product Views/Sessions
+Social (SEO optimer),Latest
+Speed Index - seconds,Average
+speed_index___seconds,Average
+Spends,Sum
+spends,Sum
+Time to interact (TTI)- seconds,Average
+time_to_interact__tti___seconds,Average
+Total blocking time (TBT) - milli seconds,Average
+total_blocking_time__tbt____milli_seconds,Average
+Transaction rate,transactions/clicks
+Transactions,Sum
+transactions,Sum
+Unique Visitors,Sum
+unique_visitors,Sum
+unit sold,Sum
+unit_sold,Sum
+Usability (SEO optimer),Latest
+VTR,Completed views/impressions
+Web page speed insights score,Average
+web_page_speed_insights_score,Average
