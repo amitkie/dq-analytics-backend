@@ -58,7 +58,10 @@ async def get_brand_info(project_id: int, brandname: str):
     try:
         data = await get_competitors_for_project_get(brand_name=brandname, project_id=project_id)
         combined_data = []
-        
+        data = {
+            "main_brand": data.main_brand.model_dump(),  # Use model_dump instead of dict
+            "competitors": [competitor.model_dump() for competitor in data.competitors]  # Convert competitors
+        }
         main_brand_data = data['main_brand']
         main_brand_data['project_id'] = project_id
         main_brand_data['type'] = 'main_brand'
@@ -162,7 +165,7 @@ async def metric_report(payload: MetricReportPayload):
         raise HTTPException(status_code=500, detail="Unable to connect to the database")
     
     normalized_data = fetch_normalized_data(conn, payload.project_ids)
-    results = join_data(normalized_data, payload.project_ids, payload.brandname)
+    results = await join_data(normalized_data, payload.project_ids, payload.brandname)
     
     above_below = results.groupby(['platformname', 'metricname', 'sectionname'], group_keys=False).apply(compare_normalized)
     above_below = above_below[['project_id','sectionname', 'metricname', 'platformname', 'brandname', 'normalized', 'above', 'below','type_y',"benchmarkvalue","brand"]]
@@ -188,7 +191,7 @@ async def platform_report(payload: MetricReportPayload):
         raise HTTPException(status_code=500, detail="Unable to connect to the database")
     
     normalized_data = fetch_normalized_data(conn, payload.project_ids)
-    results = join_data(normalized_data, payload.project_ids, payload.brandname)
+    results = await join_data(normalized_data, payload.project_ids, payload.brandname)
     
     above_below = results.groupby(['sectionname', 'platformname'], group_keys=False).apply(compare_normalized)
     above_below = above_below[['project_id', 'sectionname', 'platformname', 'normalized', 'above', 'below', 'type_y', 'brand']]
@@ -220,7 +223,7 @@ async def sectional_report(payload: MetricReportPayload):
         raise HTTPException(status_code=500, detail="Unable to connect to the database")
     
     normalized_data = fetch_normalized_data(conn, payload.project_ids)
-    results = join_data(normalized_data, payload.project_ids, payload.brandname)
+    results = await join_data(normalized_data, payload.project_ids, payload.brandname)
 
     above_below = results.groupby(['sectionname'], group_keys=False).apply(compare_normalized)
     above_below = above_below[['project_id','sectionname','above', 'below','type_y',"brand"]]
