@@ -127,14 +127,21 @@ def clean_data(results: pd.DataFrame) -> pd.DataFrame:
     return results
 
 def compare_normalized(group):
-    max_row = group.loc[group['normalized'].idxmax()]
-    min_row = group.loc[group['normalized'].idxmin()]
-
-    group['above'] = f"{max_row['brandname']} - {max_row['normalized']}"
-    group['below'] = f"{min_row['brandname']} - {min_row['normalized']}"
-
-    main_brand_rows = group[group['type_y'] == 'main_brand']
+    # Filter out the main brand rows so only competitors are considered
+    competitor_group = group[group['type_y'] != 'main_brand']
     
+    if not competitor_group.empty:
+        max_row = competitor_group.loc[competitor_group['normalized'].idxmax()]
+        min_row = competitor_group.loc[competitor_group['normalized'].idxmin()]
+        group['above'] = f"{max_row['brandname']} - {max_row['normalized']}"
+        group['below'] = f"{min_row['brandname']} - {min_row['normalized']}"
+    else:
+        # Handle cases where there are no competitor rows
+        group['above'] = "No competitor found"
+        group['below'] = "No competitor found"
+
+    # The main brand remains as is for the 'brand' key
+    main_brand_rows = group[group['type_y'] == 'main_brand']
     if not main_brand_rows.empty:
         main_brand_row = main_brand_rows.iloc[0]
         group['brand'] = f"{main_brand_row['brandname']} - {main_brand_row['normalized']}"
@@ -142,6 +149,7 @@ def compare_normalized(group):
         group['brand'] = 'No main brand found'
 
     return group
+
 
 def compare_normalized_categories(group):
     Above_80 = group.loc[(group['normalized'] > 80) & (group['normalized'] <= 100), ['project_id','project_name','brandname', 'normalized']]
