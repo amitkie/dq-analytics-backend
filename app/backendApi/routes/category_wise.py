@@ -1949,7 +1949,7 @@ def connect_to_db():
         return None
 
 def load_master_table(conn):
-    query = f"SELECT * FROM {SCHEMA_NAME}.master_table_platform_metrics_relationship_new"
+    query = f"SELECT * FROM {SCHEMA_NAME}.master_table_platform_metrics_relationship_test"
     try:
         df = pd.read_sql_query(query, conn)
         print(f"Successfully loaded master table. Shape: {df.shape}")
@@ -2120,7 +2120,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                     # Append results for "Overall" analysis type
                     results.append({
                         "platform": platform,
-                        "metric": metric,
+                        "old_metric": metric,
+                        "metric": metric_info['new_metrics'],
                         "definition": metric_info['definition'],
                         "brands": brands,
                         "analysis_type": list(combined_data['category'].unique()),  # List of unique categories
@@ -2179,7 +2180,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                         # Append results for specific categories
                         results.append({
                             "platform": platform,
-                            "metric": metric,
+                            "old_metric": metric,
+                            "metric": metric_info['new_metrics'],
                             "definition": metric_info['definition'],
                             "brands": brands,
                             "analysis_type": list(combined_data['category'].unique()),  # List of unique categories

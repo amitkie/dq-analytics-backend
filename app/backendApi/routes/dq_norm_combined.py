@@ -395,7 +395,7 @@ async def normalize_benchmarks(payload: NormalizedRequestPayload):
         # Get reference data
         brands_query = f"SELECT name as brand_name, id as brand_ids, category_id FROM {SCHEMA_NAME}.brands"
         categories_query = f"SELECT name as category_name,id FROM {SCHEMA_NAME}.categories"
-        metrics_query = f"SELECT name as metricname,id FROM {SCHEMA_NAME}.metrics"
+        metrics_query = f"SELECT new_name as metricname,id FROM {SCHEMA_NAME}.new_metrics"
         platforms_query = f"SELECT name as platformname, id FROM {SCHEMA_NAME}.platforms"
      
         brands_df = pd.read_sql_query(brands_query, conn)

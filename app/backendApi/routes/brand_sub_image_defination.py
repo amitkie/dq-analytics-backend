@@ -128,7 +128,7 @@ def get_db_connection():
 @app.get("/definition/", response_model=Dict[str, str])
 async def get_metric_definition(
     platform_name: str = Query(...), 
-    metric_name: str = Query(...)
+    metrics_id: str = Query(...)
 ):
     try:
         conn = get_db_connection()
@@ -136,9 +136,9 @@ async def get_metric_definition(
         
         # Updated SQL query to filter by both platform and metrics
         query = sql.SQL(
-            'SELECT definition FROM dq.master_table_platform_metrics_relationship_new WHERE platform = %s AND metrics = %s;'
+            'SELECT definition FROM dq.master_table_platform_metrics_relationship_new WHERE platform = %s AND metrics_id = %s;'
         )
-        cursor.execute(query, (platform_name, metric_name))
+        cursor.execute(query, (platform_name, metrics_id))
         row = cursor.fetchone()
 
         if row:

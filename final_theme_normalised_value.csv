@@ -1,2 +1,3 @@
 theme_group_d,metric_group_ids,theme_group_name,metric_group_name,project_id,brandname,weight_sum,normalized_per_weight,final_theme_norm_value
-49,1,CTR-Theme,Average ratings,268,Beardo,13.0,70.0,70.0
+61,1,sample_gp_2,Platform Customer Rating,389,Livon,0.5405405405405406,90.0,90.0
+61,56,sample_gp_2,sample_2,389,Livon,0.5405405,90.0,90.0

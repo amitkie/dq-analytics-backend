@@ -752,7 +752,7 @@ def connect_to_db():
         return None
 
 def load_master_table(conn):
-    query = f"SELECT * FROM {SCHEMA_NAME}.master_table_platform_metrics_relationship_new"
+    query = f"SELECT * FROM {SCHEMA_NAME}.master_table_platform_metrics_relationship_test"
     try:
         df = pd.read_sql_query(query, conn)
         print(f"Successfully loaded master table. Shape: {df.shape}")
@@ -850,7 +850,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                         result = None if pd.isna(result) else float(result)  # Ensure result is numeric
                         results.append({
                             "platform": platform,
-                            "metric": metric,
+                            "old_metric": metric,
+                            "metric": metric_info['new_metrics'],
                             "brand": current_brand,
                             "section": metric_info.get('section', 'N/A'),  # Include section info
                             "result": result
@@ -858,7 +859,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                     else:
                         results.append({
                             "platform": platform,
-                            "metric": metric,
+                            "old_metric": metric,
+                            "metric": metric_info['new_metrics'],
                             "brand": current_brand,
                             "section": metric_info.get('section', 'N/A'),  # Include section info
                             "result": None
@@ -879,7 +881,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                             result = None if pd.isna(result) else float(result)  # Ensure result is numeric
                             results.append({
                                 "platform": platform,
-                                "metric": metric,
+                                "old_metric": metric,
+                                "metric": metric_info['new_metrics'],
                                 "brand": current_brand,
                                 "section": metric_info.get('section', 'N/A'),  # Include section info
                                 "result": result
@@ -887,7 +890,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                         else:
                             results.append({
                                 "platform": platform,
-                                "metric": metric,
+                                "old_metric": metric,
+                                "metric": metric_info['new_metrics'],
                                 "brand": current_brand,
                                 "section": metric_info.get('section', 'N/A'),  # Include section info
                                 "result": None
@@ -897,7 +901,7 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
 
 
 class MetricRequest(BaseModel):
-    platform: Union[str, List[str]] = ["Amazon","Big Basket Campaigns","Blinkit Campaigns","Gadwords","Facebook","Amazon - Search Campaigns","Flipkart PLA Campaigns","Page Speed Insights" ,"Instagram","Twitter","SEO","seo__seo_optimer_","Amazon - Display Campaigns","DV360","Myntraa Campaigns","Flipkart PCA Campaigns","Nykaa Campaigns","Google Analytics","SEOptimer"]
+    platform: Union[str, List[str]] = ["Amazon","Big Basket Campaigns","Blinkit Campaigns","Gadwords","Facebook", "Facebook_Advertising", "Amazon - Search Campaigns","Flipkart PLA Campaigns","Page Speed Insights" ,"Instagram","Twitter","SEO","seo__seo_optimer_","Amazon - Display Campaigns","DV360","Myntraa Campaigns","Flipkart PCA Campaigns","Nykaa Campaigns","Google Analytics","SEOptimer"]
     metrics: Union[str, List[str]] = ["Purchases","Checkout","Clicks","Time to interact (TTI)- seconds","CAC","Check out to Transaction %","Usability (SEO optimer)","Frequency","Click to cart %","CPC","Availability%","Speed Index - seconds","Cumulative layout shift (CLS)","Reviews","Repeat rate %","Avg. Session Duration (mins)","Search visibility share (Paid)","First input delay (FID) - milli seconds","Transaction rate","Display – Spends","ACOS %","DPV","Click to new purchase","Mobile page speed insights score","AOV","Transactions","ATC","Cost per transaction","Add to cart","Average ratings","Total blocking time (TBT) - milli seconds","Cost per order (new)","Overall conversion %","Mentions","Performance (SEO optimer)","Order Conversion Rate","Cart to checkout","ACOS %(to be calculated )","Add to Basket","Engagement %","% of new purchase rate","Search – Spends","Product Views","SEO (SEO optimer)","ATCR","Sessions","Organic rank","Product views per session","Pages per sessions","CTR","VTR","Impressions","Largest contentful paint (LCP) - seconds","Net sentiment","unit sold","Web page speed insights score","Search - Spends","Reach","DPVR","Search visibility share (Organic)","Unique Visitors","Order","Cart to Checkout %","Load Time (seconds)","CPM","Spends","Sales value","Cost per order","Amazon Best seller rank","Engagement","Net sentiment of reviews","First contentful paint (FCP) - seconds","Social (SEO optimer)","Search - home page banners","Sessions to product views %","Product views to cart %","Cost per new customer (CAC)"]
     brand: Union[str, List[str]]
     #analysis_type: Union[str, List[str]] =["Overall"]

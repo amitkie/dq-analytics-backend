@@ -164,7 +164,7 @@ def connect_to_db():
         return None
 
 def load_master_table(conn):
-    query = f"SELECT * FROM {SCHEMA_NAME}.master_table_platform_metrics_relationship"
+    query = f"SELECT * FROM {SCHEMA_NAME}.master_table_platform_metrics_relationship_test"
     try:
         df = pd.read_sql_query(query, conn)
         print(f"Successfully loaded master table. Shape: {df.shape}")
@@ -336,7 +336,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                         result = None if pd.isna(result) else float(result)  # Ensure result is numeric
                         results.append({
                             "platform": platform,
-                            "metric": metric,
+                            "old_metric": metric,
+                            "metric": metric_info['new_metrics'],
                             "brand": current_brand,
                             "section": metric_info.get('section', 'default_section'),  # Adjust to include the section
                             "result": result,
@@ -346,7 +347,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                     else:
                         results.append({
                             "platform": platform,
-                            "metric": metric,
+                            "old_metric": metric,
+                            "metric": metric_info['new_metrics'],
                             "brand": current_brand,
                             "section": metric_info.get('section', 'default_section'),  # Adjust to include the section
                             "result": None,
@@ -369,7 +371,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                             result = None if pd.isna(result) else float(result)  # Ensure result is numeric
                             results.append({
                                 "platform": platform,
-                                "metric": metric,
+                                "old_metric": metric,
+                                "metric": metric_info['new_metrics'],
                                 "brand": current_brand,
                                 "section": metric_info.get('section', 'default_section'),  # Adjust to include the section
                                 "result": result
@@ -377,7 +380,8 @@ def process_metric(master_table, conn, platforms, metrics, brands, analysis_type
                         else:
                             results.append({
                                 "platform": platform,
-                                "metric": metric,
+                                "old_metric": metric,
+                                "metric": metric_info['new_metrics'],
                                 "brand": current_brand,
                                 "section": metric_info.get('section', 'default_section'),  # Adjust to include the section
                                 "result": None

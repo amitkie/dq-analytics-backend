@@ -408,7 +408,9 @@ async def fetch_weight_sum_data(payload: RequestPayload):
 
         # Return the final output directly as it's already a list of dictionaries
         return final_df_output
-
+    except Exception as e:
+        print(f"Error during fetch_weight_sum_data processing: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         if conn:
             conn.close()
@@ -424,7 +426,9 @@ async def create_group_normalised(payload: RequestPayload):
         # Insert the final DataFrame into the database
         insert_group_normalised_data(conn, final_df)
         return JSONResponse(content=final_df.to_dict(orient="records"))
-    
+    except Exception as e:
+        print(f"Error during group_normalised processing: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         if conn:
             conn.close()
